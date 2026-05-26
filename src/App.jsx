@@ -12,7 +12,7 @@ function App() {
   const activeItinerary = itineraryMode === 'mine' ? myItinerary : familyItinerary;
   
   const [selectedDay, setSelectedDay] = useState(activeItinerary[0]);
-  const [mobileTab, setMobileTab] = useState('timeline');
+  const [isPrepOpen, setIsPrepOpen] = useState(false);
 
   // Sync selectedDay whenever the itinerary mode changes
   useEffect(() => {
@@ -49,16 +49,6 @@ function App() {
       });
     } else {
       setItineraryMode(mode);
-    }
-  };
-
-  const handleMobileTabSelect = (tab) => {
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        setMobileTab(tab);
-      });
-    } else {
-      setMobileTab(tab);
     }
   };
 
@@ -117,6 +107,10 @@ function App() {
               <Download size={14} />
               <span>列印 / 導出 PDF</span>
             </button>
+            <button className="hero-btn prep-toggle-btn" onClick={() => setIsPrepOpen(true)}>
+              <Briefcase size={14} />
+              <span>行前準備 🎒</span>
+            </button>
           </div>
         </div>
       </div>
@@ -156,37 +150,35 @@ function App() {
           </nav>
         </header>
 
-        {/* Main Split Grid */}
-        <main className="app-main-grid">
-          {/* Left Widget Sidebar Container */}
-          <div className={`sidebar-container ${mobileTab === 'dashboard' ? 'mobile-active' : 'mobile-hidden'}`}>
-            {selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />}
-          </div>
-
-          {/* Right Dynamic Timeline View Container */}
-          <div className={`timeline-wrapper ${mobileTab === 'timeline' ? 'mobile-active' : 'mobile-hidden'}`}>
+        {/* Main Spacious Timeline Grid */}
+        <main className="app-main-grid single-timeline-view">
+          <div className="timeline-wrapper full-width">
             {selectedDay && <Timeline dayData={selectedDay} />}
           </div>
         </main>
-
-        {/* Mobile Bottom Floating Navigation Bar */}
-        <div className="mobile-nav-bar">
-          <button 
-            className={`mobile-nav-btn ${mobileTab === 'timeline' ? 'active' : ''}`}
-            onClick={() => handleMobileTabSelect('timeline')}
-          >
-            <Map size={18} />
-            <span>每日行程</span>
-          </button>
-          <button 
-            className={`mobile-nav-btn ${mobileTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => handleMobileTabSelect('dashboard')}
-          >
-            <Briefcase size={18} />
-            <span>行前準備</span>
-          </button>
-        </div>
       </div>
+
+      {/* Collapsible Sliding Cozy Drawer for Pre-trip Preparation */}
+      {isPrepOpen && (
+        <div className="drawer-overlay" onClick={() => setIsPrepOpen(false)}>
+          <div className="drawer-content animate-slide-in" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header">
+              <h3 className="drawer-title">🎒 行前準備助理</h3>
+              <button className="drawer-close-btn" onClick={() => setIsPrepOpen(false)}>✕</button>
+            </div>
+            <div className="drawer-scroll-body">
+              {selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Action Button (FAB) for quick drawer access */}
+      {!isPrepOpen && (
+        <button className="floating-prep-fab" onClick={() => setIsPrepOpen(true)} title="開啟行前準備">
+          🎒
+        </button>
+      )}
     </div>
   );
 }

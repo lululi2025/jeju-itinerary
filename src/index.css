@@ -1529,22 +1529,64 @@ body {
   animation: cute-bobbing 1.8s infinite ease-in-out;
 }
 
-/* Guide Cards */
+/* Guide Cards — with cover image support */
 .guide-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   background: #fffdf6;
   border: 3px solid #5d4636;
   box-shadow: 4px 4px 0px #5d4636;
   border-radius: 1.25rem;
-  padding: 1.15rem;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
 .guide-card:hover {
-  transform: translateY(-3px) rotate(0.5deg);
+  transform: translateY(-3px);
   box-shadow: 6px 6px 0px #5d4636;
+}
+
+/* Card Cover Image */
+.guide-card-cover {
+  position: relative;
+  height: 140px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.guide-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.guide-card:hover .guide-card-img {
+  transform: scale(1.08);
+}
+
+.guide-card-cover-badge {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  background: rgba(255, 253, 246, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 2px solid #5d4636;
+  color: #5d4636;
+  font-weight: 850;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Card Body */
+.guide-card-body {
+  padding: 0.9rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .guide-card-header {
@@ -1566,9 +1608,15 @@ body {
 }
 
 .duration-badge {
-  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: #7c6a59;
+  background: #f4edd2;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.5rem;
 }
 
 .rating-stars {
@@ -1590,13 +1638,13 @@ body {
 }
 
 .guide-card-title {
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 850;
   color: #5d4636;
   margin: 0;
   line-height: 1.4;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.35rem;
   transition: color 0.15s ease;
   cursor: pointer;
@@ -1607,7 +1655,9 @@ body {
 }
 
 .guide-card-title .link-icon {
-  opacity: 0.5;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  opacity: 0.4;
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
@@ -1618,10 +1668,18 @@ body {
 }
 
 .guide-card-desc {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #6b5c4c;
-  line-height: 1.55;
+  line-height: 1.6;
   margin: 0;
 }
+
+/* Guide content list gap */
+.guide-content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { myItinerary, familyItinerary } from './data/itinerary';
 import Dashboard from './components/Dashboard';
+import Guide from './components/Guide';
 import Timeline from './components/Timeline';
 import { Compass, Map, Briefcase, Share2, Download, Calendar, User, Users, Navigation } from 'lucide-react';
 import './index.css';
@@ -13,6 +14,7 @@ function App() {
   
   const [selectedDay, setSelectedDay] = useState(activeItinerary[0]);
   const [isPrepOpen, setIsPrepOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState('prep');
 
   // Sync selectedDay whenever the itinerary mode changes
   useEffect(() => {
@@ -163,11 +165,30 @@ function App() {
         <div className="drawer-overlay" onClick={() => setIsPrepOpen(false)}>
           <div className="drawer-content animate-slide-in" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header">
-              <h3 className="drawer-title">🎒 行前準備助理</h3>
+              <div className="drawer-tabs">
+                <button 
+                  className={`drawer-tab-btn ${drawerTab === 'prep' ? 'active' : ''}`}
+                  onClick={() => setDrawerTab('prep')}
+                  style={drawerTab === 'prep' && selectedDay ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent } : {}}
+                >
+                  🎒 行前準備
+                </button>
+                <button 
+                  className={`drawer-tab-btn ${drawerTab === 'guide' ? 'active' : ''}`}
+                  onClick={() => setDrawerTab('guide')}
+                  style={drawerTab === 'guide' && selectedDay ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent } : {}}
+                >
+                  🗺️ 必買＆景點
+                </button>
+              </div>
               <button className="drawer-close-btn" onClick={() => setIsPrepOpen(false)}>✕</button>
             </div>
             <div className="drawer-scroll-body">
-              {selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />}
+              {drawerTab === 'prep' ? (
+                selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />
+              ) : (
+                selectedDay && <Guide themeColor={selectedDay.theme.accent} />
+              )}
             </div>
           </div>
         </div>

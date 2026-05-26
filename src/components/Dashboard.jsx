@@ -66,10 +66,56 @@ export default function Dashboard({ themeColor }) {
     return () => clearInterval(interval);
   }, []);
 
-  const togglePacked = (id) => {
+  // Packing list particle animation state
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    if (particles.length === 0) return;
+    const interval = setInterval(() => {
+      setParticles(prev => 
+        prev
+          .map(p => ({
+            ...p,
+            x: p.x + p.vx,
+            y: p.y + p.vy,
+            vy: p.vy + 0.3, // gravity
+            angle: p.angle + p.spin,
+            opacity: p.opacity - 0.02
+          }))
+          .filter(p => p.opacity > 0 && p.y < 900)
+      );
+    }, 16);
+    return () => clearInterval(interval);
+  }, [particles]);
+
+  const togglePacked = (id, event) => {
+    const isNowPacked = !packedItems.includes(id);
     setPackedItems(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
+
+    if (isNowPacked && event) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const container = document.querySelector('.dashboard-sidebar');
+      const containerRect = container.getBoundingClientRect();
+      
+      const x = rect.left - containerRect.left + rect.width / 2;
+      const y = rect.top - containerRect.top + rect.height / 2;
+      
+      const newParticles = Array.from({ length: 8 }).map((_, idx) => ({
+        id: Math.random() + idx,
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 6,
+        vy: -Math.random() * 4 - 3,
+        emoji: ['🍊', '🍃', '✨', '🍊', '🍃', '⭐️'][Math.floor(Math.random() * 6)],
+        angle: Math.random() * 360,
+        spin: (Math.random() - 0.5) * 16,
+        opacity: 1
+      }));
+      
+      setParticles(prev => [...prev, ...newParticles]);
+    }
   };
 
   // Handle live currency typing
@@ -196,7 +242,7 @@ export default function Dashboard({ themeColor }) {
               <li 
                 key={item.id} 
                 className={`checklist-item ${isPacked ? 'checked' : ''}`}
-                onClick={() => togglePacked(item.id)}
+                onClick={(e) => togglePacked(item.id, e)}
               >
                 <div className={`checkbox ${isPacked ? 'active' : ''}`}>
                   {isPacked && '✓'}
@@ -210,15 +256,22 @@ export default function Dashboard({ themeColor }) {
           })}
         </ul>
         <div className="checklist-progress">
-          <div 
-            className="progress-bar" 
-            style={{ 
-              width: `${(packedItems.length / PACKING_ITEMS.length) * 100}%`,
-              backgroundColor: themeColor
-            }}
-          ></div>
+          <div className="progress-track-wrapper">
+            <div 
+              className="progress-bar-fill" 
+              style={{ 
+                width: `${(packedItems.length / PACKING_ITEMS.length) * 100}%`,
+                backgroundColor: themeColor
+              }}
+            >
+              {/* Cute slider handle: shows crown when 100% complete, orange 🍊 otherwise */}
+              <div className="progress-bar-handle">
+                {packedItems.length === PACKING_ITEMS.length ? '👑' : '🍊'}
+              </div>
+            </div>
+          </div>
           <span className="progress-text">
-            已整理 {packedItems.length} / {PACKING_ITEMS.length}
+            🎒 已收妥 {packedItems.length} / {PACKING_ITEMS.length} 件行李 ({Math.round((packedItems.length / PACKING_ITEMS.length) * 100)}%)
           </span>
         </div>
       </div>
@@ -238,6 +291,27 @@ export default function Dashboard({ themeColor }) {
           </ul>
         </div>
       </div>
+
+      {/* Particle Emitter */}
+      {particles.map(p => (
+        <span
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: p.x,
+            top: p.y,
+            transform: `translate(-50%, -50%) rotate(${p.angle}deg)`,
+            fontSize: '1.4rem',
+            pointerEvents: 'none',
+            opacity: p.opacity,
+            zIndex: 999,
+            userSelect: 'none',
+            transition: 'opacity 0.05s linear'
+          }}
+        >
+          {p.emoji}
+        </span>
+      ))}
     </div>
   );
 }

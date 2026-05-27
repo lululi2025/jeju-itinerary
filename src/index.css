@@ -2782,6 +2782,14 @@ body {
   font-size: 0.88rem;
 }
 
+.guide-card-source {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0.5rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 .route-list-flight-note {
   list-style: none;
   background: hsla(var(--theme-h), var(--theme-s), 60%, 0.08);

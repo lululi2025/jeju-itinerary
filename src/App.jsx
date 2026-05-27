@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { myItinerary, familyItinerary } from './data/itinerary';
 import Dashboard from './components/Dashboard';
 import Guide from './components/Guide';
@@ -32,6 +32,27 @@ function App() {
   useEffect(() => {
     setSelectedDayNum(activeItinerary[0].dayNum);
   }, [itineraryMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-scroll active day chip into view (so D5 doesn't hide off-screen)
+  const dayRailRef = useRef(null);
+  useEffect(() => {
+    const rail = dayRailRef.current;
+    if (!rail) return;
+    const chip = rail.querySelector(`[data-day="${selectedDayNum}"]`);
+    if (chip && chip.scrollIntoView) {
+      chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [selectedDayNum, itineraryMode]);
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isPrepOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isPrepOpen]);
 
   // Dynamic theme color from day
   useEffect(() => {
@@ -146,23 +167,26 @@ function App() {
         </div>
 
         {/* Sticky day pills */}
-        <nav className="day-rail" aria-label="日期選擇">
-          {activeItinerary.map((day) => {
-            const isActive = day.dayNum === selectedDayNum;
-            return (
-              <button
-                key={day.dayNum}
-                className={`day-chip ${isActive ? 'active' : ''}`}
-                style={isActive ? { borderColor: day.theme.accent, color: day.theme.accent, background: day.theme.accent + '15' } : {}}
-                onClick={() => handleDaySelect(day)}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className="day-chip-num">D{day.dayNum}</span>
-                <span className="day-chip-date">{day.date}</span>
-              </button>
-            );
-          })}
-        </nav>
+        <div className="day-rail-wrap">
+          <nav className="day-rail" aria-label="日期選擇" ref={dayRailRef}>
+            {activeItinerary.map((day) => {
+              const isActive = day.dayNum === selectedDayNum;
+              return (
+                <button
+                  key={day.dayNum}
+                  data-day={day.dayNum}
+                  className={`day-chip ${isActive ? 'active' : ''}`}
+                  style={isActive ? { borderColor: day.theme.accent, color: day.theme.accent, background: day.theme.accent + '15' } : {}}
+                  onClick={() => handleDaySelect(day)}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <span className="day-chip-num">D{day.dayNum}</span>
+                  <span className="day-chip-date">{day.date}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </header>
 
       {/* ─────────────────────────────────────────

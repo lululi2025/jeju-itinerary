@@ -6,23 +6,23 @@ import Timeline from './components/Timeline';
 import MapExplorer from './components/MapExplorer';
 import {
   Compass, MapPin, Calendar, Briefcase, Share2, Download,
-  User, Users, MoreHorizontal, X,
+  User, Users, MoreHorizontal,
 } from 'lucide-react';
 import './index.css';
 
 function App() {
   const [itineraryMode, setItineraryMode] = useState('mine');
-  const [mainView, setMainView] = useState('itinerary'); // 'itinerary' | 'map'
-  const [isPrepOpen, setIsPrepOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState('prep');
+  // 'itinerary' | 'map' | 'prep'
+  const [mainView, setMainView] = useState('itinerary');
+  // Sub-tab for the prep view
+  const [prepTab, setPrepTab] = useState('prep'); // 'prep' | 'guide'
   const [menuOpen, setMenuOpen] = useState(false);
 
   const activeItinerary = itineraryMode === 'mine' ? myItinerary : familyItinerary;
 
-  // Use dayNum as the source of truth so switching mode keeps day index sensible
+  // Use dayNum as source of truth (keeps day index sensible when switching mode)
   const [selectedDayNum, setSelectedDayNum] = useState(activeItinerary[0].dayNum);
 
-  // Resolve the day object
   const selectedDay = useMemo(
     () => activeItinerary.find((d) => d.dayNum === selectedDayNum) ?? activeItinerary[0],
     [activeItinerary, selectedDayNum]
@@ -44,16 +44,6 @@ function App() {
     }
   }, [selectedDayNum, itineraryMode]);
 
-  // Lock body scroll when drawer is open
-  useEffect(() => {
-    if (isPrepOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [isPrepOpen]);
-
   // Dynamic theme color from day
   useEffect(() => {
     if (selectedDay?.theme) {
@@ -66,7 +56,7 @@ function App() {
     }
   }, [selectedDay]);
 
-  // Close menu when clicking outside (simple effect)
+  // Close menu when clicking outside
   useEffect(() => {
     if (!menuOpen) return;
     const close = () => setMenuOpen(false);
@@ -86,6 +76,7 @@ function App() {
 
   const handleDaySelect = (day) => safeTransition(() => setSelectedDayNum(day.dayNum));
   const handleModeSelect = (mode) => safeTransition(() => setItineraryMode(mode));
+  const handleViewSelect = (view) => safeTransition(() => setMainView(view));
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -97,6 +88,10 @@ function App() {
   const tripMeta = itineraryMode === 'mine'
     ? { title: '我的濟州 5 日', range: '7/8 – 7/12', tag: '自駕補考 🌴' }
     : { title: '家人濟州 6 日', range: '7/6 – 7/11', tag: '溫馨家族 👨‍👩‍👧‍👦' };
+
+  // Whether the day rail is relevant in the current view.
+  // 行前 page is day-agnostic — hide the day rail to give content more room.
+  const showDayRail = mainView !== 'prep';
 
   return (
     <div className="app-shell">
@@ -166,40 +161,71 @@ function App() {
           </div>
         </div>
 
-        {/* Sticky day pills */}
-        <div className="day-rail-wrap">
-          <nav className="day-rail" aria-label="日期選擇" ref={dayRailRef}>
-            {activeItinerary.map((day) => {
-              const isActive = day.dayNum === selectedDayNum;
-              return (
-                <button
-                  key={day.dayNum}
-                  data-day={day.dayNum}
-                  className={`day-chip ${isActive ? 'active' : ''}`}
-                  style={isActive ? { borderColor: day.theme.accent, color: day.theme.accent, background: day.theme.accent + '15' } : {}}
-                  onClick={() => handleDaySelect(day)}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="day-chip-num">D{day.dayNum}</span>
-                  <span className="day-chip-date">{day.date}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+        {/* Sticky day pills (hidden on prep page since it's day-agnostic) */}
+        {showDayRail && (
+          <div className="day-rail-wrap">
+            <nav className="day-rail" aria-label="日期選擇" ref={dayRailRef}>
+              {activeItinerary.map((day) => {
+                const isActive = day.dayNum === selectedDayNum;
+                return (
+                  <button
+                    key={day.dayNum}
+                    data-day={day.dayNum}
+                    className={`day-chip ${isActive ? 'active' : ''}`}
+                    style={isActive ? { borderColor: day.theme.accent, color: day.theme.accent, background: day.theme.accent + '15' } : {}}
+                    onClick={() => handleDaySelect(day)}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <span className="day-chip-num">D{day.dayNum}</span>
+                    <span className="day-chip-date">{day.date}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        )}
+
+        {/* Sub-tabs for the prep page only */}
+        {mainView === 'prep' && (
+          <div className="prep-subtabs" role="tablist" aria-label="行前內容">
+            <button
+              className={`prep-subtab-btn ${prepTab === 'prep' ? 'active' : ''}`}
+              style={prepTab === 'prep' ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent, background: selectedDay.theme.accent + '15' } : {}}
+              onClick={() => setPrepTab('prep')}
+              role="tab"
+              aria-selected={prepTab === 'prep'}
+            >
+              🎒 行前準備
+            </button>
+            <button
+              className={`prep-subtab-btn ${prepTab === 'guide' ? 'active' : ''}`}
+              style={prepTab === 'guide' ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent, background: selectedDay.theme.accent + '15' } : {}}
+              onClick={() => setPrepTab('guide')}
+              role="tab"
+              aria-selected={prepTab === 'guide'}
+            >
+              🗺️ 必買 & 景點
+            </button>
+          </div>
+        )}
       </header>
 
       {/* ─────────────────────────────────────────
           Main content area
           ───────────────────────────────────────── */}
       <main className="app-body">
-        {mainView === 'itinerary' ? (
+        {mainView === 'itinerary' && (
           <Timeline dayData={selectedDay} accent={selectedDay.theme.accent} />
-        ) : (
-          <MapExplorer
-            dayData={selectedDay}
-            accent={selectedDay.theme.accent}
-          />
+        )}
+        {mainView === 'map' && (
+          <MapExplorer dayData={selectedDay} accent={selectedDay.theme.accent} />
+        )}
+        {mainView === 'prep' && (
+          <div className="prep-page">
+            {prepTab === 'prep'
+              ? <Dashboard themeColor={selectedDay.theme.accent} />
+              : <Guide themeColor={selectedDay.theme.accent} />}
+          </div>
         )}
       </main>
 
@@ -209,63 +235,26 @@ function App() {
       <nav className="bottom-nav" aria-label="主功能">
         <button
           className={`bottom-nav-btn ${mainView === 'itinerary' ? 'active' : ''}`}
-          onClick={() => setMainView('itinerary')}
+          onClick={() => handleViewSelect('itinerary')}
         >
           <Calendar size={20} />
           <span>行程</span>
         </button>
         <button
           className={`bottom-nav-btn ${mainView === 'map' ? 'active' : ''}`}
-          onClick={() => setMainView('map')}
+          onClick={() => handleViewSelect('map')}
         >
           <MapPin size={20} />
           <span>地圖</span>
         </button>
         <button
-          className={`bottom-nav-btn ${isPrepOpen ? 'active' : ''}`}
-          onClick={() => setIsPrepOpen(true)}
+          className={`bottom-nav-btn ${mainView === 'prep' ? 'active' : ''}`}
+          onClick={() => handleViewSelect('prep')}
         >
           <Briefcase size={20} />
           <span>行前</span>
         </button>
       </nav>
-
-      {/* ─────────────────────────────────────────
-          Pre-trip drawer
-          ───────────────────────────────────────── */}
-      {isPrepOpen && (
-        <div className="drawer-overlay" onClick={() => setIsPrepOpen(false)}>
-          <div className="drawer-content" onClick={(e) => e.stopPropagation()}>
-            <div className="drawer-grip" />
-            <div className="drawer-header">
-              <div className="drawer-tabs" role="tablist">
-                <button
-                  className={`drawer-tab-btn ${drawerTab === 'prep' ? 'active' : ''}`}
-                  onClick={() => setDrawerTab('prep')}
-                  style={drawerTab === 'prep' && selectedDay ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent } : {}}
-                >
-                  🎒 行前準備
-                </button>
-                <button
-                  className={`drawer-tab-btn ${drawerTab === 'guide' ? 'active' : ''}`}
-                  onClick={() => setDrawerTab('guide')}
-                  style={drawerTab === 'guide' && selectedDay ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent } : {}}
-                >
-                  🗺️ 必買 & 景點
-                </button>
-              </div>
-              <button className="drawer-close-btn" onClick={() => setIsPrepOpen(false)} aria-label="關閉">
-                <X size={18} />
-              </button>
-            </div>
-            <div className="drawer-scroll-body">
-              {drawerTab === 'prep'
-                ? selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />
-                : selectedDay && <Guide themeColor={selectedDay.theme.accent} />}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -2913,17 +2913,65 @@ body {
   margin-top: 0.4rem;
 }
 
-/* ----- Drawer grip handle ----- */
-.drawer-grip {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 4px;
-  border-radius: 999px;
-  background: #cbd5e1;
-  z-index: 5;
+/* ═══════════════════════════════════════════════════════════════════════
+   🎒  Prep page — replaces the drawer with a regular bottom-nav view
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Sub-tabs (行前準備 / 必買 & 景點) live in the topbar when on prep view */
+.prep-subtabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.2rem 0.95rem 0.65rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.prep-subtabs::-webkit-scrollbar { display: none; }
+
+.prep-subtab-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1.5px solid var(--theme-border);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.85rem;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  min-height: 38px;
+}
+
+.prep-subtab-btn:hover {
+  background: white;
+  color: var(--theme-accent);
+  border-color: var(--theme-accent);
+}
+
+.prep-subtab-btn.active {
+  box-shadow: 0 4px 14px -6px var(--theme-glow), 0 1px 4px rgba(15, 23, 42, 0.04);
+  transform: translateY(-1px);
+}
+
+.prep-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* The Dashboard / Guide components were originally designed for the drawer.
+   In page-mode they need to lose sticky positioning and just flow. */
+.prep-page .guide-container,
+.prep-page .dashboard-sidebar {
+  width: 100%;
+  position: static;
+  top: auto;
 }
 
 /* ----- Override old layout so it doesn't bleed in ----- */

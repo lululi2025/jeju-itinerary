@@ -1826,3 +1826,250 @@ body {
   font-weight: 800 !important;
 }
 
+/* ==========================================================================
+   Main View Tabs  (📅 每日行程  |  🗺️ 濟州地圖)
+   ========================================================================== */
+
+.main-view-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem 0;
+}
+
+.main-view-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 99px;
+  border: 2.5px solid #c9b8a8;
+  background: #fffdf6;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #8c725c;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.main-view-tab.active {
+  background: #5d4636;
+  border-color: #5d4636;
+  color: #fffdf6;
+  box-shadow: 3px 3px 0 rgba(93, 70, 54, 0.3);
+}
+
+.main-view-tab:hover:not(.active) {
+  border-color: #5d4636;
+  color: #5d4636;
+}
+
+/* ==========================================================================
+   MapExplorer  —  Full-page interactive map layout
+   ========================================================================== */
+
+.map-explorer {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1.25rem 1.25rem;
+  gap: 0.75rem;
+  height: calc(100vh - 260px);
+  min-height: 520px;
+}
+
+/* ── Category filter chips ── */
+.map-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.map-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 99px;
+  border: 2px solid #c9b8a8;
+  background: #fffdf6;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #8c725c;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.map-chip:hover {
+  border-color: #5d4636;
+  color: #5d4636;
+}
+
+.map-chip-active {
+  font-weight: 900;
+  box-shadow: 2px 2px 0 currentColor;
+}
+
+.map-chip-count {
+  background: rgba(0,0,0,0.07);
+  border-radius: 99px;
+  padding: 0.05rem 0.38rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+/* ── Body: list + map split ── */
+.map-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0.75rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Scrollable side list ── */
+.map-side-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  scroll-behavior: smooth;
+}
+
+.map-side-list::-webkit-scrollbar {
+  width: 4px;
+}
+.map-side-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.map-side-list::-webkit-scrollbar-thumb {
+  background: #c9b8a8;
+  border-radius: 4px;
+}
+
+.map-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 2px solid #e5d8cc;
+  background: #fffdf6;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+  box-shadow: 2px 2px 0 #e5d8cc;
+}
+
+.map-list-item:hover {
+  border-color: #5d4636;
+  box-shadow: 3px 3px 0 #5d4636;
+  transform: translateY(-1px);
+}
+
+.map-list-item-active {
+  background: #fdf8f2;
+  transform: translateY(-1px);
+}
+
+.map-list-emoji {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.map-list-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.map-list-title {
+  font-size: 0.78rem;
+  font-weight: 850;
+  color: #5d4636;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-list-sub {
+  font-size: 0.65rem;
+  color: #8c725c;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Map canvas ── */
+.map-canvas {
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 3px solid #5d4636;
+  box-shadow: 4px 4px 0 #5d4636;
+}
+
+/* ── Mobile layout ── */
+@media (max-width: 768px) {
+  .map-explorer {
+    padding: 0.5rem 0.75rem 0.75rem;
+    height: calc(100vh - 220px);
+    min-height: 480px;
+  }
+
+  .map-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .map-side-list {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.25rem;
+    padding-right: 0;
+    max-height: none;
+  }
+
+  .map-list-item {
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    max-width: 90px;
+    padding: 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .map-list-text {
+    align-items: center;
+  }
+
+  .map-list-title {
+    font-size: 0.65rem;
+    text-align: center;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .map-list-sub {
+    display: none;
+  }
+
+  .map-canvas {
+    border-radius: 1rem;
+  }
+
+  .main-view-tabs {
+    padding: 0.5rem 0.75rem 0;
+  }
+}

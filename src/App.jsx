@@ -3,11 +3,13 @@ import { myItinerary, familyItinerary } from './data/itinerary';
 import Dashboard from './components/Dashboard';
 import Guide from './components/Guide';
 import Timeline from './components/Timeline';
-import { Compass, Map, Briefcase, Share2, Download, Calendar, User, Users, Navigation } from 'lucide-react';
+import MapExplorer from './components/MapExplorer';
+import { Compass, Map, Briefcase, Share2, Download, Calendar, User, Users, Navigation, MapPin } from 'lucide-react';
 import './index.css';
 
 function App() {
   const [itineraryMode, setItineraryMode] = useState('mine');
+  const [mainView, setMainView] = useState('itinerary'); // 'itinerary' | 'map'
   
   // Choose the dataset based on mode
   const activeItinerary = itineraryMode === 'mine' ? myItinerary : familyItinerary;
@@ -118,46 +120,71 @@ function App() {
       </div>
 
       <div className="app-wrapper">
-        {/* Main Tabs Segmented Control (Switch between Personal and Family plan) */}
-        <div className="itinerary-toggle-container">
-          <button 
-            className={`itinerary-toggle-btn ${itineraryMode === 'mine' ? 'active' : ''}`}
-            onClick={() => handleModeSelect('mine')}
+        {/* ── Top-level view switcher: 行程 | 地圖 ── */}
+        <div className="main-view-tabs">
+          <button
+            className={`main-view-tab ${mainView === 'itinerary' ? 'active' : ''}`}
+            onClick={() => setMainView('itinerary')}
           >
-            <User size={16} />
-            <span>👤 我的行程 (5天版)</span>
+            <Map size={15} />
+            <span>📅 每日行程</span>
           </button>
-          <button 
-            className={`itinerary-toggle-btn ${itineraryMode === 'family' ? 'active' : ''}`}
-            onClick={() => handleModeSelect('family')}
+          <button
+            className={`main-view-tab ${mainView === 'map' ? 'active' : ''}`}
+            onClick={() => setMainView('map')}
           >
-            <Users size={16} />
-            <span>👨‍👩‍👧‍👦 家人的行程 (6天原版)</span>
+            <MapPin size={15} />
+            <span>🗺️ 濟州地圖</span>
           </button>
         </div>
 
-        {/* Day selection tab pills */}
-        <header className="app-header-nav">
-          <nav className="day-selector-container">
-            {activeItinerary.map((day) => (
-              <button
-                key={day.dayNum}
-                className={`day-tab-btn ${selectedDay && selectedDay.dayNum === day.dayNum ? 'active' : ''}`}
-                onClick={() => handleDaySelect(day)}
+        {mainView === 'itinerary' ? (
+          <>
+            {/* Main Tabs Segmented Control (Switch between Personal and Family plan) */}
+            <div className="itinerary-toggle-container">
+              <button 
+                className={`itinerary-toggle-btn ${itineraryMode === 'mine' ? 'active' : ''}`}
+                onClick={() => handleModeSelect('mine')}
               >
-                <Map size={14} />
-                <span>D{day.dayNum} - {day.date}</span>
+                <User size={16} />
+                <span>👤 我的行程 (5天版)</span>
               </button>
-            ))}
-          </nav>
-        </header>
+              <button 
+                className={`itinerary-toggle-btn ${itineraryMode === 'family' ? 'active' : ''}`}
+                onClick={() => handleModeSelect('family')}
+              >
+                <Users size={16} />
+                <span>👨‍👩‍👧‍👦 家人的行程 (6天原版)</span>
+              </button>
+            </div>
 
-        {/* Main Spacious Timeline Grid */}
-        <main className="app-main-grid single-timeline-view">
-          <div className="timeline-wrapper full-width">
-            {selectedDay && <Timeline dayData={selectedDay} />}
-          </div>
-        </main>
+            {/* Day selection tab pills */}
+            <header className="app-header-nav">
+              <nav className="day-selector-container">
+                {activeItinerary.map((day) => (
+                  <button
+                    key={day.dayNum}
+                    className={`day-tab-btn ${selectedDay && selectedDay.dayNum === day.dayNum ? 'active' : ''}`}
+                    onClick={() => handleDaySelect(day)}
+                  >
+                    <Map size={14} />
+                    <span>D{day.dayNum} - {day.date}</span>
+                  </button>
+                ))}
+              </nav>
+            </header>
+
+            {/* Main Spacious Timeline Grid */}
+            <main className="app-main-grid single-timeline-view">
+              <div className="timeline-wrapper full-width">
+                {selectedDay && <Timeline dayData={selectedDay} />}
+              </div>
+            </main>
+          </>
+        ) : (
+          /* ── Map Explorer ── */
+          <MapExplorer />
+        )}
       </div>
 
       {/* Collapsible Sliding Cozy Drawer for Pre-trip Preparation */}

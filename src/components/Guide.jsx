@@ -1,5 +1,26 @@
 import React, { useState } from 'react';
-import { ShoppingBag, MapPin, ExternalLink, Star, Clock } from 'lucide-react';
+import { ShoppingBag, MapPin, ExternalLink, Star, Clock, Map as MapIcon, List } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+/* ── Custom Marker Icon (emoji-based, no external image needed) ── */
+const createEmojiIcon = (emoji) =>
+  L.divIcon({
+    html: `<div style="
+      font-size: 22px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: #fffdf6;
+      border: 3px solid #5d4636;
+      border-radius: 50%;
+      box-shadow: 2px 2px 0px #5d4636;
+    ">${emoji}</div>`,
+    className: '',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -38]
+  });
 
 /* ─────────────────────────────────────────────────────────────
    🛍️  MUST-BUY  — 12 curated items with Unsplash cover photos
@@ -116,7 +137,7 @@ const MUST_BUYS = [
 ];
 
 /* ─────────────────────────────────────────────────────────────
-   🏔️  MUST-VISIT  — 12 curated attractions with cover photos
+   🏔️  MUST-VISIT  — 12 attractions with cover photos + coords
    ───────────────────────────────────────────────────────────── */
 const MUST_VISITS = [
   {
@@ -124,113 +145,142 @@ const MUST_VISITS = [
     title: '城山日出峰 (Seongsan Ilchulbong)',
     desc: '世界自然遺產！由海底火山噴發形成的巨碗狀火山丘，頂部是壯觀的翠綠火山口。沿木棧道約 30 分鐘即可登頂，俯瞰蔚藍太平洋與東部海岸線，濟州島公認第一日出聖地。旺季建議清晨 5 點抵達搶好位置！',
     tag: '世界遺產 🌋',
+    emoji: '🌋',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '1.5 - 2 小時',
-    image: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=600&q=80',
+    lat: 33.4581, lng: 126.9425
   },
   {
     id: 'udo',
     title: '夢幻離島 - 牛島 (Udo Island)',
     desc: '離本島僅 15 分鐘船程的寶石小島，因形似臥牛得名。島上有 Tiffany 藍清透海水、純白珊瑚沙灘和黑色玄武岩海岸三種截然不同的海灘景觀！租雙人電動車環島一圈約 2 小時，必吃牛島花生冰淇淋和海螺咖哩飯。',
     tag: '絕美離島 🚲',
+    emoji: '🏝️',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '半天至一天',
-    image: 'https://images.unsplash.com/photo-1599707367812-042f73e21e65?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1599707367812-042f73e21e65?auto=format&fit=crop&w=600&q=80',
+    lat: 33.5036, lng: 126.9536
   },
   {
     id: 'aewol',
     title: '涯月漢潭海邊咖啡街 (Aewol Handam)',
     desc: '濟州西海岸最夢幻的落日漫步路線。蜿蜒的海岸散步道串聯起一整排坐擁無敵海景的落地窗咖啡廳，包括 GD 的 Monsant 和知名 Knotted 甜甜圈店。黃昏時分坐在露天座位看果凍藍海面被夕陽染成金色，浪漫指數爆表！',
     tag: '海景夕陽 ☕️',
+    emoji: '☕️',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '2 - 3 小時',
-    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?auto=format&fit=crop&w=600&q=80',
+    lat: 33.4627, lng: 126.3125
   },
   {
     id: 'manjanggul',
     title: '萬丈窟 (Manjanggul Lava Tube)',
     desc: 'UNESCO 世界自然遺產，全長約 7.4 公里的壯觀熔岩洞窟，是全球最長的熔岩隧道之一！開放的 1 公里步道內可以看到奇幻的熔岩鐘乳石、石柱和全世界最高的熔岩石柱（高達 7.6 公尺）。洞內常年維持 11-21°C，夏天避暑超舒適！',
     tag: '地質奇觀 🕳️',
+    emoji: '🕳️',
     url: 'https://bring-you.info/zh-tw/jeju-island-travel-guide',
     duration: '1 - 1.5 小時',
-    image: 'https://images.unsplash.com/photo-1504699439244-a8f9c33e2a20?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1504699439244-a8f9c33e2a20?auto=format&fit=crop&w=600&q=80',
+    lat: 33.5281, lng: 126.7714
   },
   {
     id: 'jeongbang',
     title: '正房瀑布 (Jeongbang Waterfall)',
     desc: '亞洲唯一直接落入大海的海岸懸崖瀑布！高 23 公尺的銀白水柱從黑色玄武岩斷崖傾瀉而下，直接墜入碧綠海面，水霧飛濺搭配海浪拍岸的音效，震撼力十足。站在崖底抬頭仰望，感受大自然最原始的壯闊力量。',
     tag: '壯觀瀑布 💦',
+    emoji: '💦',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '1 小時',
-    image: 'https://images.unsplash.com/photo-1567639296067-c73e4f449eb7?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1567639296067-c73e4f449eb7?auto=format&fit=crop&w=600&q=80',
+    lat: 33.2438, lng: 126.5725
   },
   {
     id: 'snoopy',
     title: '史努比庭園 (Snoopy Garden)',
     desc: '近年濟州爆紅打卡聖地！超大規模的史努比主題花園分為室內展區和戶外庭園兩大部分。室內有五個主題展廳重現經典漫畫場景，戶外的花田和森林步道藏著各種 Snoopy 和 Charlie Brown 雕塑。不論大人小孩都會被療癒到融化！',
     tag: '打卡聖地 🐾',
+    emoji: '🐾',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '2 - 3 小時',
-    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=600&q=80',
+    lat: 33.4440, lng: 126.8280
   },
   {
     id: 'arte-museum',
     title: 'Arte Museum 沉浸式光影藝術館',
     desc: '濟州最具話題性的室內景點！利用超大型投影和環繞音效打造十餘個沉浸式藝術空間——海底世界、流星花園、無盡瀑布——光影從牆面延伸到地板讓你彷彿置身畫中。超級出片！也是雨天的完美備案。',
     tag: '藝術體驗 🎨',
+    emoji: '🎨',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '1.5 - 2 小時',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
+    lat: 33.3050, lng: 126.3488
   },
   {
     id: 'camellia',
     title: '山茶花之丘 & 雪綠茶博物館',
     desc: '山茶花之丘是東亞最大的山茶花園林，四季各有浪漫花海（冬山茶、春櫻、夏繡球、秋紅葉），如詩如畫。旁邊是 O\'sulloc 雪綠茶博物館，被翠綠茶園環繞，可以品嚐限定的綠茶冰淇淋和購買伴手禮。兩個景點可以順遊！',
     tag: '森林花園 🌸',
+    emoji: '🌸',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '2 - 3 小時',
-    image: 'https://images.unsplash.com/photo-1490750967868-88aa4f44baee?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1490750967868-88aa4f44baee?auto=format&fit=crop&w=600&q=80',
+    lat: 33.3058, lng: 126.3530
   },
   {
     id: 'dongmun',
     title: '東門傳統市場 & 夜市 (Dongmun Market)',
     desc: '濟州島最古老、規模最大的市場！白天逛鮮魚區買生魚片和黑豬肉乾，橘子伴手禮在這裡也最齊全；入夜後夜市區大排檔火力全開——招牌烤黑豬肉五花卷、龍蝦起司炸物、柑橘糖葫蘆和現打石頭爺爺瓶裝果汁，是體驗在地煙火氣的覓食天堂！',
     tag: '傳統市場 🍢',
+    emoji: '🍢',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '2 - 3 小時',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80',
+    lat: 33.5128, lng: 126.5287
   },
   {
     id: 'jusangjeolli',
     title: '大浦海岸柱狀節理帶 (Jusangjeolli Cliff)',
     desc: '大自然的鬼斧神工！數萬根完美六角形玄武岩石柱如同巨型管風琴般整齊排列在海岸邊，是火山熔岩冷卻凝固後形成的壯觀地質奇景。海浪拍打時白色浪花襯著黑色岩柱，形成極具衝擊力的畫面，是攝影師夢寐以求的取景地！',
     tag: '地質奇景 🪨',
+    emoji: '🪨',
     url: 'https://bring-you.info/zh-tw/jeju-island-travel-guide',
     duration: '1 小時',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&q=80',
+    lat: 33.2378, lng: 126.4248
   },
   {
     id: 'hyeopjae',
     title: '挾才海水浴場 & 翰林公園 (Hyeopjae Beach)',
     desc: '濟州島公認最美的白沙海灘！細軟的銀白沙灘搭配漸層翡翠綠海水，宛如馬爾地夫般的夢幻色票。對面就是飛揚島的翠綠山影，構成完美的海島明信片。隔壁的翰林公園匯集亞熱帶植物園、洞窟和民俗村，一次滿足三種體驗！',
     tag: '絕美海灘 🏖️',
+    emoji: '🏖️',
     url: 'https://bring-you.info/zh-tw/jeju-island-travel-guide',
     duration: '2 - 3 小時',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+    lat: 33.3937, lng: 126.2396
   },
   {
     id: 'ecoland',
     title: 'ECOLAND 森林小火車主題樂園',
     desc: '搭乘英式復古蒸汽小火車，穿梭在 30 萬坪的原始榿木林和湖泊之間——全程共四站，每站都有不同主題的花園和步道可以下車散步。湖心小島上還有夢幻的風車花園和歐式木屋咖啡座。超適合親子和情侶慢活拍照的療癒系景點！',
     tag: '親子樂園 🚂',
+    emoji: '🚂',
     url: 'https://blog.kkday.com/112613/asia-korea-jeju-must-visit-attractions',
     duration: '2 - 3 小時',
-    image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=600&q=80'
+    image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=600&q=80',
+    lat: 33.4540, lng: 126.6320
   }
 ];
 
+/* ── Jeju Island center for map default view ── */
+const JEJU_CENTER = [33.38, 126.55];
+
 export default function Guide({ themeColor }) {
   const [activeSubTab, setActiveSubTab] = useState('buys');
+  const [mapView, setMapView] = useState(false);  // toggle list ↔ map
+  const [focusedSpot, setFocusedSpot] = useState(null);
 
   return (
     <div className="guide-container animate-fade-in">
@@ -238,7 +288,7 @@ export default function Guide({ themeColor }) {
       <div className="guide-subtabs">
         <button
           className={`guide-subtab-btn ${activeSubTab === 'buys' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('buys')}
+          onClick={() => { setActiveSubTab('buys'); setMapView(false); }}
           style={activeSubTab === 'buys' ? { '--active-accent': themeColor } : {}}
         >
           <ShoppingBag size={15} />
@@ -254,9 +304,30 @@ export default function Guide({ themeColor }) {
         </button>
       </div>
 
-      {/* Content List */}
+      {/* Map / List toggle — only for visits tab */}
+      {activeSubTab === 'visits' && (
+        <div className="guide-view-toggle">
+          <button
+            className={`view-toggle-btn ${!mapView ? 'active' : ''}`}
+            onClick={() => setMapView(false)}
+          >
+            <List size={14} />
+            <span>清單</span>
+          </button>
+          <button
+            className={`view-toggle-btn ${mapView ? 'active' : ''}`}
+            onClick={() => setMapView(true)}
+          >
+            <MapIcon size={14} />
+            <span>地圖</span>
+          </button>
+        </div>
+      )}
+
+      {/* Content */}
       <div className="guide-content-list">
         {activeSubTab === 'buys' ? (
+          /* ──── 必買清單 ──── */
           <>
             <div className="guide-intro-banner">
               <span className="emoji">🍊</span>
@@ -264,7 +335,6 @@ export default function Guide({ themeColor }) {
             </div>
             {MUST_BUYS.map((item) => (
               <div key={item.id} className="guide-card">
-                {/* Cover Image */}
                 <div className="guide-card-cover">
                   <img src={item.image} alt={item.title} className="guide-card-img" loading="lazy" />
                   <span className="guide-card-cover-badge">{item.tag}</span>
@@ -273,22 +343,12 @@ export default function Guide({ themeColor }) {
                   <div className="guide-card-header">
                     <div className="rating-stars">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={12}
-                          fill={i < Math.floor(item.rating) ? '#f59e0b' : 'none'}
-                          stroke="#f59e0b"
-                        />
+                        <Star key={i} size={12} fill={i < Math.floor(item.rating) ? '#f59e0b' : 'none'} stroke="#f59e0b" />
                       ))}
                       <span className="rating-num">{item.rating}</span>
                     </div>
                   </div>
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="guide-card-title-link"
-                  >
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="guide-card-title-link">
                     <h4 className="guide-card-title">
                       {item.title}
                       <ExternalLink size={13} className="link-icon" />
@@ -299,7 +359,40 @@ export default function Guide({ themeColor }) {
               </div>
             ))}
           </>
+        ) : mapView ? (
+          /* ──── 景點地圖 ──── */
+          <div className="guide-map-wrapper">
+            <MapContainer
+              center={JEJU_CENTER}
+              zoom={10}
+              scrollWheelZoom={true}
+              style={{ width: '100%', height: '100%', borderRadius: '1rem' }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {MUST_VISITS.map((spot) => (
+                <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={createEmojiIcon(spot.emoji)}>
+                  <Popup className="cozy-popup" maxWidth={260} minWidth={220}>
+                    <div className="popup-inner">
+                      <img src={spot.image} alt={spot.title} className="popup-img" />
+                      <div className="popup-body">
+                        <span className="popup-tag">{spot.tag}</span>
+                        <h4 className="popup-title">{spot.title}</h4>
+                        <p className="popup-duration">⏱️ 建議停留 {spot.duration}</p>
+                        <a href={spot.url} target="_blank" rel="noopener noreferrer" className="popup-link">
+                          查看攻略 →
+                        </a>
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
         ) : (
+          /* ──── 景點清單 ──── */
           <>
             <div className="guide-intro-banner">
               <span className="emoji">🌋</span>
@@ -307,7 +400,6 @@ export default function Guide({ themeColor }) {
             </div>
             {MUST_VISITS.map((item) => (
               <div key={item.id} className="guide-card">
-                {/* Cover Image */}
                 <div className="guide-card-cover">
                   <img src={item.image} alt={item.title} className="guide-card-img" loading="lazy" />
                   <span className="guide-card-cover-badge">{item.tag}</span>
@@ -319,12 +411,7 @@ export default function Guide({ themeColor }) {
                       建議停留 {item.duration}
                     </span>
                   </div>
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="guide-card-title-link"
-                  >
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="guide-card-title-link">
                     <h4 className="guide-card-title">
                       {item.title}
                       <ExternalLink size={13} className="link-icon" />

@@ -1,34 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { myItinerary, familyItinerary } from './data/itinerary';
 import Dashboard from './components/Dashboard';
 import Guide from './components/Guide';
 import Timeline from './components/Timeline';
 import MapExplorer from './components/MapExplorer';
-import { Compass, Map, Briefcase, Share2, Download, Calendar, User, Users, Navigation, MapPin } from 'lucide-react';
+import {
+  Compass, MapPin, Calendar, Briefcase, Share2, Download,
+  User, Users, MoreHorizontal, X,
+} from 'lucide-react';
 import './index.css';
 
 function App() {
   const [itineraryMode, setItineraryMode] = useState('mine');
   const [mainView, setMainView] = useState('itinerary'); // 'itinerary' | 'map'
-  
-  // Choose the dataset based on mode
-  const activeItinerary = itineraryMode === 'mine' ? myItinerary : familyItinerary;
-  
-  const [selectedDay, setSelectedDay] = useState(activeItinerary[0]);
   const [isPrepOpen, setIsPrepOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState('prep');
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Sync selectedDay whenever the itinerary mode changes
-  useEffect(() => {
-    setSelectedDay(activeItinerary[0]);
-  }, [itineraryMode]);
+  const activeItinerary = itineraryMode === 'mine' ? myItinerary : familyItinerary;
 
-  // Dynamically update HSL theme colors in CSS variables based on selected day
+  // Use dayNum as the source of truth so switching mode keeps day index sensible
+  const [selectedDayNum, setSelectedDayNum] = useState(activeItinerary[0].dayNum);
+
+  // Resolve the day object
+  const selectedDay = useMemo(
+    () => activeItinerary.find((d) => d.dayNum === selectedDayNum) ?? activeItinerary[0],
+    [activeItinerary, selectedDayNum]
+  );
+
+  // Reset day when switching me/family
   useEffect(() => {
-    if (selectedDay && selectedDay.theme) {
+    setSelectedDayNum(activeItinerary[0].dayNum);
+  }, [itineraryMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Dynamic theme color from day
+  useEffect(() => {
+    if (selectedDay?.theme) {
       const root = document.documentElement;
       const { h, s, l, accent } = selectedDay.theme;
-      
       root.style.setProperty('--theme-h', h.toString());
       root.style.setProperty('--theme-s', s);
       root.style.setProperty('--theme-l', l);
@@ -36,196 +45,202 @@ function App() {
     }
   }, [selectedDay]);
 
-  const handleDaySelect = (day) => {
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        setSelectedDay(day);
-      });
-    } else {
-      setSelectedDay(day);
-    }
+  // Close menu when clicking outside (simple effect)
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = () => setMenuOpen(false);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [menuOpen]);
+
+  const safeTransition = (cb) => {
+    try {
+      if (document.startViewTransition) {
+        document.startViewTransition(cb);
+        return;
+      }
+    } catch (_) { /* fall through */ }
+    cb();
   };
 
-  const handleModeSelect = (mode) => {
-    if (document.startViewTransition) {
-      document.startViewTransition(() => {
-        setItineraryMode(mode);
-      });
-    } else {
-      setItineraryMode(mode);
-    }
-  };
+  const handleDaySelect = (day) => safeTransition(() => setSelectedDayNum(day.dayNum));
+  const handleModeSelect = (mode) => safeTransition(() => setItineraryMode(mode));
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert('已複製您的濟州島專屬行程連結！快分享給家人吧 🔗');
+    alert('已複製濟州島行程連結！');
   };
 
-  const handleExportPDF = () => {
-    window.print();
-  };
+  const handleExportPDF = () => window.print();
+
+  const tripMeta = itineraryMode === 'mine'
+    ? { title: '我的濟州 5 日', range: '7/8 – 7/12', tag: '自駕補考 🌴' }
+    : { title: '家人濟州 6 日', range: '7/6 – 7/11', tag: '溫馨家族 👨‍👩‍👧‍👦' };
 
   return (
-    <div className="app-main-wrapper">
-      {/* Immersive Cover Hero Header (Wanderlog Style) */}
-      <div className="trip-hero-banner">
-        <div className="hero-overlay"></div>
-        <div className="hero-content">
-          <div className="hero-badge">
-            <Compass size={14} />
-            <span>
-              {itineraryMode === 'mine' ? '自駕補考旅程 🌴' : '溫馨家族旅程 👨‍👩‍👧‍👦'}
-            </span>
-          </div>
-          <h1 className="hero-title">
-            {itineraryMode === 'mine' ? '我的濟州島自駕 5日遊' : '家人濟州島溫馨 6日遊'}
-          </h1>
-          
-          <div className="hero-meta-grid">
-            <div className="meta-item">
-              <Calendar size={14} />
-              <span>
-                {itineraryMode === 'mine' ? '2026.07.08 - 2026.07.12' : '2026.07.06 - 2026.07.11'}
-              </span>
+    <div className="app-shell">
+      {/* ─────────────────────────────────────────
+          Compact sticky top header
+          ───────────────────────────────────────── */}
+      <header className="topbar">
+        <div className="topbar-main">
+          <div className="topbar-headline">
+            <div className="topbar-tag">
+              <Compass size={11} />
+              <span>{tripMeta.tag}</span>
             </div>
-            <div className="meta-item">
-              <User size={14} />
-              <span>
-                {itineraryMode === 'mine' ? '1 人自駕（7/8-10 與家人合流）' : '家族成員旅行團 (KHH直飛)'}
-              </span>
-            </div>
-            <div className="meta-item">
-              <Navigation size={14} />
-              <span>
-                {itineraryMode === 'mine' ? '週末專屬自駕 🚗' : '全程租車自駕 🚗'}
-              </span>
+            <h1 className="topbar-title">{tripMeta.title}</h1>
+            <div className="topbar-date">
+              <Calendar size={11} />
+              <span>{tripMeta.range}</span>
             </div>
           </div>
 
-          <div className="hero-action-buttons">
-            <button className="hero-btn share-btn" onClick={handleShare}>
-              <Share2 size={14} />
-              <span>分享行程</span>
-            </button>
-            <button className="hero-btn export-btn" onClick={handleExportPDF}>
-              <Download size={14} />
-              <span>列印 / 導出 PDF</span>
-            </button>
-            <button className="hero-btn prep-toggle-btn" onClick={() => setIsPrepOpen(true)}>
-              <Briefcase size={14} />
-              <span>行前準備 🎒</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="app-wrapper">
-        {/* ── Top-level view switcher: 行程 | 地圖 ── */}
-        <div className="main-view-tabs">
-          <button
-            className={`main-view-tab ${mainView === 'itinerary' ? 'active' : ''}`}
-            onClick={() => setMainView('itinerary')}
-          >
-            <Map size={15} />
-            <span>📅 每日行程</span>
-          </button>
-          <button
-            className={`main-view-tab ${mainView === 'map' ? 'active' : ''}`}
-            onClick={() => setMainView('map')}
-          >
-            <MapPin size={15} />
-            <span>🗺️ 濟州地圖</span>
-          </button>
-        </div>
-
-        {mainView === 'itinerary' ? (
-          <>
-            {/* Main Tabs Segmented Control (Switch between Personal and Family plan) */}
-            <div className="itinerary-toggle-container">
-              <button 
-                className={`itinerary-toggle-btn ${itineraryMode === 'mine' ? 'active' : ''}`}
+          <div className="topbar-right">
+            {/* Me / Family switch */}
+            <div className="mode-pill" role="tablist" aria-label="行程版本">
+              <button
+                className={`mode-pill-btn ${itineraryMode === 'mine' ? 'active' : ''}`}
                 onClick={() => handleModeSelect('mine')}
+                role="tab"
+                aria-selected={itineraryMode === 'mine'}
               >
-                <User size={16} />
-                <span>👤 我的行程 (5天版)</span>
+                <User size={13} />
+                <span>我</span>
               </button>
-              <button 
-                className={`itinerary-toggle-btn ${itineraryMode === 'family' ? 'active' : ''}`}
+              <button
+                className={`mode-pill-btn ${itineraryMode === 'family' ? 'active' : ''}`}
                 onClick={() => handleModeSelect('family')}
+                role="tab"
+                aria-selected={itineraryMode === 'family'}
               >
-                <Users size={16} />
-                <span>👨‍👩‍👧‍👦 家人的行程 (6天原版)</span>
+                <Users size={13} />
+                <span>家人</span>
               </button>
             </div>
 
-            {/* Day selection tab pills */}
-            <header className="app-header-nav">
-              <nav className="day-selector-container">
-                {activeItinerary.map((day) => (
-                  <button
-                    key={day.dayNum}
-                    className={`day-tab-btn ${selectedDay && selectedDay.dayNum === day.dayNum ? 'active' : ''}`}
-                    onClick={() => handleDaySelect(day)}
-                  >
-                    <Map size={14} />
-                    <span>D{day.dayNum} - {day.date}</span>
+            {/* Overflow menu */}
+            <div className="topbar-menu-wrapper" onClick={(e) => e.stopPropagation()}>
+              <button
+                className="topbar-icon-btn"
+                onClick={() => setMenuOpen((v) => !v)}
+                aria-label="更多選項"
+                aria-expanded={menuOpen}
+              >
+                <MoreHorizontal size={18} />
+              </button>
+              {menuOpen && (
+                <div className="topbar-menu" role="menu">
+                  <button className="topbar-menu-item" onClick={() => { handleShare(); setMenuOpen(false); }}>
+                    <Share2 size={14} />
+                    <span>分享連結</span>
                   </button>
-                ))}
-              </nav>
-            </header>
+                  <button className="topbar-menu-item" onClick={() => { handleExportPDF(); setMenuOpen(false); }}>
+                    <Download size={14} />
+                    <span>列印 / PDF</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-            {/* Main Spacious Timeline Grid */}
-            <main className="app-main-grid single-timeline-view">
-              <div className="timeline-wrapper full-width">
-                {selectedDay && <Timeline dayData={selectedDay} />}
-              </div>
-            </main>
-          </>
+        {/* Sticky day pills */}
+        <nav className="day-rail" aria-label="日期選擇">
+          {activeItinerary.map((day) => {
+            const isActive = day.dayNum === selectedDayNum;
+            return (
+              <button
+                key={day.dayNum}
+                className={`day-chip ${isActive ? 'active' : ''}`}
+                style={isActive ? { borderColor: day.theme.accent, color: day.theme.accent, background: day.theme.accent + '15' } : {}}
+                onClick={() => handleDaySelect(day)}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className="day-chip-num">D{day.dayNum}</span>
+                <span className="day-chip-date">{day.date}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </header>
+
+      {/* ─────────────────────────────────────────
+          Main content area
+          ───────────────────────────────────────── */}
+      <main className="app-body">
+        {mainView === 'itinerary' ? (
+          <Timeline dayData={selectedDay} accent={selectedDay.theme.accent} />
         ) : (
-          /* ── Map Explorer ── */
-          <MapExplorer />
+          <MapExplorer
+            dayData={selectedDay}
+            accent={selectedDay.theme.accent}
+          />
         )}
-      </div>
+      </main>
 
-      {/* Collapsible Sliding Cozy Drawer for Pre-trip Preparation */}
+      {/* ─────────────────────────────────────────
+          Bottom Nav (mobile-first)
+          ───────────────────────────────────────── */}
+      <nav className="bottom-nav" aria-label="主功能">
+        <button
+          className={`bottom-nav-btn ${mainView === 'itinerary' ? 'active' : ''}`}
+          onClick={() => setMainView('itinerary')}
+        >
+          <Calendar size={20} />
+          <span>行程</span>
+        </button>
+        <button
+          className={`bottom-nav-btn ${mainView === 'map' ? 'active' : ''}`}
+          onClick={() => setMainView('map')}
+        >
+          <MapPin size={20} />
+          <span>地圖</span>
+        </button>
+        <button
+          className={`bottom-nav-btn ${isPrepOpen ? 'active' : ''}`}
+          onClick={() => setIsPrepOpen(true)}
+        >
+          <Briefcase size={20} />
+          <span>行前</span>
+        </button>
+      </nav>
+
+      {/* ─────────────────────────────────────────
+          Pre-trip drawer
+          ───────────────────────────────────────── */}
       {isPrepOpen && (
         <div className="drawer-overlay" onClick={() => setIsPrepOpen(false)}>
-          <div className="drawer-content animate-slide-in" onClick={(e) => e.stopPropagation()}>
+          <div className="drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-grip" />
             <div className="drawer-header">
-              <div className="drawer-tabs">
-                <button 
+              <div className="drawer-tabs" role="tablist">
+                <button
                   className={`drawer-tab-btn ${drawerTab === 'prep' ? 'active' : ''}`}
                   onClick={() => setDrawerTab('prep')}
                   style={drawerTab === 'prep' && selectedDay ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent } : {}}
                 >
                   🎒 行前準備
                 </button>
-                <button 
+                <button
                   className={`drawer-tab-btn ${drawerTab === 'guide' ? 'active' : ''}`}
                   onClick={() => setDrawerTab('guide')}
                   style={drawerTab === 'guide' && selectedDay ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent } : {}}
                 >
-                  🗺️ 必買＆景點
+                  🗺️ 必買 & 景點
                 </button>
               </div>
-              <button className="drawer-close-btn" onClick={() => setIsPrepOpen(false)}>✕</button>
+              <button className="drawer-close-btn" onClick={() => setIsPrepOpen(false)} aria-label="關閉">
+                <X size={18} />
+              </button>
             </div>
             <div className="drawer-scroll-body">
-              {drawerTab === 'prep' ? (
-                selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />
-              ) : (
-                selectedDay && <Guide themeColor={selectedDay.theme.accent} />
-              )}
+              {drawerTab === 'prep'
+                ? selectedDay && <Dashboard themeColor={selectedDay.theme.accent} />
+                : selectedDay && <Guide themeColor={selectedDay.theme.accent} />}
             </div>
           </div>
         </div>
-      )}
-
-      {/* Floating Action Button (FAB) for quick drawer access */}
-      {!isPrepOpen && (
-        <button className="floating-prep-fab" onClick={() => setIsPrepOpen(true)} title="開啟行前準備">
-          🎒
-        </button>
       )}
     </div>
   );

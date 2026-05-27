@@ -1,3 +1,40 @@
+/* ────────────────────────────────────────────────────────────
+   Centralised coordinates for every place that appears in the
+   itineraries. Used by Timeline + MapExplorer to draw daily
+   routes with numbered pins + polylines.
+   Sources: Google Maps / Naver Maps (verified May 2026).
+   ──────────────────────────────────────────────────────────── */
+export const LOC = {
+  // Airports
+  TPE:  { lat: 25.0797, lng: 121.2342 },                // 桃園 T1
+  KHH:  { lat: 22.5777, lng: 120.3502 },                // 高雄小港
+  CJU:  { lat: 33.5113, lng: 126.4929 },                // 濟州國際機場
+
+  // Stays
+  jungane:     { lat: 33.5222, lng: 126.8616 },         // Jungane 泳池別墅 (21棟)
+  airCity:     { lat: 33.4905, lng: 126.4935 },         // Hotel Air City Jeju
+  jocheonPool: { lat: 33.5370, lng: 126.6340 },         // 小朝天海景泳池別墅
+
+  // Day-1 / Day-3 (family) stops
+  londonBagel: { lat: 33.5225, lng: 126.8521 },         // London Bagel Museum
+  haenyeo:     { lat: 33.5180, lng: 126.8650 },         // 海女博物館
+
+  // Day-2 牛島
+  seongsanPort:{ lat: 33.4744, lng: 126.9295 },         // 城山港 (Udo Ferry)
+  udo:         { lat: 33.5036, lng: 126.9536 },         // 牛島
+
+  // Day-3 Aqua Planet / shopping
+  aquaPlanet:  { lat: 33.4335, lng: 126.9270 },         // Aqua Planet Jeju
+  lotteDuty:   { lat: 33.4890, lng: 126.4986 },         // 樂天免稅店濟州店
+  rentalShop:  { lat: 33.4870, lng: 126.4870 },         // 蓮洞租車公司（近免稅店）
+
+  // Day-4 西部海岸
+  hamdeok:     { lat: 33.5435, lng: 126.6694 },         // 咸德海水浴場
+  blackPork:   { lat: 33.4876, lng: 126.4921 },         // 黑豬肉一條街
+  arteMuseum:  { lat: 33.3050, lng: 126.3488 },         // ARTE MUSEUM
+  dongmun:     { lat: 33.5128, lng: 126.5287 },         // 東門傳統市場
+};
+
 // 👤 我的行程：5天自駕自遊版 (7/8 - 7/12)
 export const myItinerary = [
   {
@@ -20,7 +57,8 @@ export const myItinerary = [
         title: '🛫 飛機起飛',
         tag: 'flight',
         description: '搭乘台灣虎航 IT654 飛往濟州島，開啟美好旅程。',
-        location: '桃園國際機場 T1'
+        location: '桃園國際機場 T1',
+        coords: LOC.TPE
       },
       {
         time: '09:35',
@@ -28,6 +66,7 @@ export const myItinerary = [
         tag: 'flight',
         description: '辦理入境手續，提取行李後出關。',
         location: '濟州國際機場',
+        coords: LOC.CJU,
         transit: { type: 'drive', time: '35 分鐘', dist: '22 公里', desc: '自駕/計程車前往東部海岸區' }
       },
       {
@@ -37,6 +76,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
         description: '在熱門的 London Bagel Museum 與先抵達的家人會合，品嚐香 Q 貝果。旁邊有網美墨鏡店 Blue Elephant 濟州店可以順便逛！',
         location: 'London Bagel Museum Jeju',
+        coords: LOC.londonBagel,
         mapUrl: 'https://map.naver.com/v5/search/London%20Bagel%20Museum%20Jeju',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=London+Bagel+Museum+Jeju',
         introUrl: 'https://mimi-travel.com/london-bagel-museum-jeju/',
@@ -49,6 +89,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
         description: '了解濟州島獨特的海女文化與歷史發展，館內展品非常豐富，是認識濟州文化的必訪景點。',
         location: '海女博物館 (해녀박물관)',
+        coords: LOC.haenyeo,
         mapUrl: 'https://map.naver.com/v5/search/해녀박물관',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Jeju+Haenyeo+Museum',
         introUrl: 'https://anise.tw/244342',
@@ -61,6 +102,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80',
         description: '入住超高規格的溫水泳池別墅，下午在別墅享受水療與泳池時光。別墅配備有密碼鎖、可烹飪、提供星巴克咖啡膠囊、溫水泳池。',
         location: 'Jungane 水療與泳池別墅 (21棟)',
+        coords: LOC.jungane,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Jungane+Spa+and+Pool+Villa',
         phone: '+82-507-1394-5085',
         details: [
@@ -84,6 +126,7 @@ export const myItinerary = [
         tag: 'activity',
         description: '開車或步行前往港口搭乘渡輪前往牛島，島上建議租借腳踏車/電動車環島。',
         location: '城山港/牛島渡輪',
+        coords: LOC.seongsanPort,
         transit: { type: 'ferry', time: '15 分鐘', dist: '3.8 公里', desc: '搭乘渡輪抵達牛島天津港' }
       },
       {
@@ -93,6 +136,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
         description: '欣賞牛島八景，吹著海風騎車，途中必吃特產花生冰淇淋與漢拏山炒飯。',
         location: '牛島 (우도)',
+        coords: LOC.udo,
         mapUrl: 'https://map.naver.com/v5/search/우도',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Udo+Island',
         introUrl: 'https://www.bring-you.info/zh-tw/udo',
@@ -104,7 +148,8 @@ export const myItinerary = [
         tag: 'hotel',
         coverImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80',
         description: '回到 Jungane 別墅，在溫水泳池徹底放鬆，晚上可利用別墅廚房進行家庭聚餐。',
-        location: 'Jungane 水療與泳池別墅'
+        location: 'Jungane 水療與泳池別墅',
+        coords: LOC.jungane
       }
     ]
   },
@@ -122,6 +167,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=600&q=80',
         description: '全亞洲最大水族館之一！欣賞精彩的海底動物餵食秀與大型海洋劇場表演，是必去地標。',
         location: 'Aqua Planet 濟州',
+        coords: LOC.aquaPlanet,
         mapUrl: 'https://map.naver.com/v5/search/Aqua%20Planet%20Jeju',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Aqua+Planet+Jeju',
         introUrl: 'https://yoti.life/jeju-aquaplanet/',
@@ -134,6 +180,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1560243563-062bff001d68?auto=format&fit=crop&w=600&q=80',
         description: '前往市區大型免稅店，採購美妝、名牌包及各類韓國特產。',
         location: '樂天免稅店濟州店',
+        coords: LOC.lotteDuty,
         mapUrl: 'https://map.naver.com/v5/search/Lotte%20Duty%20Free%20Jeju',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Lotte+Duty+Free+Jeju',
         introUrl: 'https://www.bring-you.info/zh-tw/jeju-travel-guide',
@@ -145,6 +192,7 @@ export const myItinerary = [
         tag: 'activity',
         description: '家人行程即將結束，協助進行車輛歸還，並租借自己後續自駕的專屬車輛。',
         location: '租車公司服務處',
+        coords: LOC.rentalShop,
         transit: { type: 'walk', time: '5 分鐘', dist: '350 公尺', desc: '步行前往蓮洞商圈飯店' }
       },
       {
@@ -153,6 +201,7 @@ export const myItinerary = [
         tag: 'hotel',
         description: '入住位於市區、交通機能極佳的 Air City 飯店，方便明天自駕與後天去機場。',
         location: '濟州艾爾城市飯店 (Hotel Air City Jeju)',
+        coords: LOC.airCity,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+Air+City+Jeju',
         details: ['位置：濟州市蓮洞，離機場僅 10 分鐘車程', '周邊：鄰近蓮洞步行街，生活機能優越']
       }
@@ -172,6 +221,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=600&q=80',
         description: '自駕前往擁有清澈果凍海與白沙灘的咸德海灘，可前往熱門的 Cafe Delmoondo 喝杯海景咖啡。',
         location: '咸德海水浴場',
+        coords: LOC.hamdeok,
         mapUrl: 'https://map.naver.com/v5/search/Hamdeok%20Beach',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hamdeok+Beach',
         introUrl: 'https://julia116.com/hamdeok-beach/',
@@ -184,6 +234,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1629814234032-4752c4bbf5fb?auto=format&fit=crop&w=600&q=80',
         description: '大啖濟州島最著名的正宗黑豬肉燒烤，外皮焦脆肉質多汁！',
         location: '黑豬肉一條街 (흑돼지거리)',
+        coords: LOC.blackPork,
         mapUrl: 'https://map.naver.com/v5/search/Black%20Pork%20Street',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Black+Pork+Street+Jeju',
         introUrl: 'https://julia116.com/dombedon/',
@@ -196,6 +247,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=600&q=80',
         description: '開車前往欣賞超大型的數位聲光投影藝術，非常壯觀，是近年社群最熱門的打卡點。',
         location: 'ARTE MUSEUM Jeju',
+        coords: LOC.arteMuseum,
         mapUrl: 'https://map.naver.com/v5/search/ARTE%20MUSEUM%20Jeju',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=ARTE+MUSEUM+Jeju',
         introUrl: 'https://julia116.com/arte-museum-jeju/',
@@ -208,6 +260,7 @@ export const myItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=600&q=80',
         description: '前往東門市場，品嚐豐富的小吃夜市，並去採購網友瘋搶的濟州島特色棉被！',
         location: '濟州東門傳統市場',
+        coords: LOC.dongmun,
         mapUrl: 'https://map.naver.com/v5/search/Dongmun%20Market',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Jeju+Dongmun+Traditional+Market',
         introUrl: 'https://www.bring-you.info/zh-tw/dongmun-market',
@@ -219,6 +272,7 @@ export const myItinerary = [
         tag: 'hotel',
         description: '將戰利品帶回市區飯店，整理行李準備明天登機。',
         location: '濟州艾爾城市飯店',
+        coords: LOC.airCity,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+Air+City+Jeju'
       }
     ]
@@ -244,6 +298,7 @@ export const myItinerary = [
         tag: 'activity',
         description: '前往租車公司歸還車輛，檢查無誤後搭乘接駁車前往機場。',
         location: '租車公司辦公室',
+        coords: LOC.rentalShop,
         transit: { type: 'drive', time: '10 分鐘', dist: '4 公里', desc: '搭乘租車公司接駁車到機場' }
       },
       {
@@ -252,6 +307,7 @@ export const myItinerary = [
         tag: 'flight',
         description: '抵達濟州機場國際線辦理登機，辦理免稅退稅，最後採購機場伴手禮。',
         location: '濟州國際機場',
+        coords: LOC.CJU,
         transit: { type: 'flight', time: '2 小時 5 分鐘', dist: '1100 公里', desc: '虎航 IT655 返航' }
       },
       {
@@ -259,14 +315,16 @@ export const myItinerary = [
         title: '🛫 飛機起飛',
         tag: 'flight',
         description: '搭乘虎航 IT655 返航台北，結束充實快樂的濟州五日遊。',
-        location: '濟州國際機場'
+        location: '濟州國際機場',
+        coords: LOC.CJU
       },
       {
         time: '11:45',
         title: '🏡 抵達台灣',
         tag: 'flight',
         description: '順利降落桃園機場，返回溫馨的家。',
-        location: '桃園國際機場 T1'
+        location: '桃園國際機場 T1',
+        coords: LOC.TPE
       }
     ]
   }
@@ -294,7 +352,8 @@ export const familyItinerary = [
         title: '🛫 高雄出發 ＆ 晚餐part1',
         tag: 'flight',
         description: '在高雄機場出發，於登機前在候機室享用簡單晚餐 part 1，隨後登機啟程。',
-        location: '高雄小港國際機場'
+        location: '高雄小港國際機場',
+        coords: LOC.KHH
       },
       {
         time: '18:50',
@@ -302,6 +361,7 @@ export const familyItinerary = [
         tag: 'flight',
         description: '降落濟州國際機場，出關後前往市區享用溫馨的晚餐 part 2，開啟愉快假期。',
         location: '濟州國際機場',
+        coords: LOC.CJU,
         transit: { type: 'drive', time: '10 分鐘', dist: '4.5 公里', desc: '搭車前往濟州市區飯店' }
       },
       {
@@ -311,6 +371,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80',
         description: '入住機能極佳的 Air City 飯店，好好休息，準備明早取車。',
         location: '濟州艾爾城市飯店 (Hotel Air City Jeju)',
+        coords: LOC.airCity,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+Air+City+Jeju'
       }
     ]
@@ -328,6 +389,7 @@ export const familyItinerary = [
         tag: 'activity',
         description: '前往租車公司完成相關簽約與檢查手續，領取未來幾天旅程的座車。',
         location: '租車公司服務處',
+        coords: LOC.rentalShop,
         transit: { type: 'drive', time: '15 分鐘', dist: '6 公里', desc: '開車前往傳統市場' }
       },
       {
@@ -337,6 +399,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=600&q=80',
         description: '逛濟州最出名的東門市場，品嚐章魚燒、黑豬肉捲等豐富美食，並去挑選超舒服的濟州島特產棉被！',
         location: '濟州東門傳統市場',
+        coords: LOC.dongmun,
         mapUrl: 'https://map.naver.com/v5/search/Dongmun%20Market',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Jeju+Dongmun+Traditional+Market',
         introUrl: 'https://www.bring-you.info/zh-tw/dongmun-market',
@@ -349,6 +412,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1629814234032-4752c4bbf5fb?auto=format&fit=crop&w=600&q=80',
         description: '中午大啖烤黑豬肉！肉質彈牙香脆，搭配清脆生菜與韓式泡菜，幸福感拉滿！',
         location: '黑豬肉一條街 (흑돼지거리)',
+        coords: LOC.blackPork,
         mapUrl: 'https://map.naver.com/v5/search/Black%20Pork%20Street',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Black+Pork+Street+Jeju',
         introUrl: 'https://julia116.com/dombedon/',
@@ -361,6 +425,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=600&q=80',
         description: '在被譽為「濟州馬爾地夫」的咸德海灘踏浪，砂質潔白海水碧藍，可在 Delmoondo 享受悠閒午後。',
         location: '咸德海水浴場',
+        coords: LOC.hamdeok,
         mapUrl: 'https://map.naver.com/v5/search/Hamdeok%20Beach',
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hamdeok+Beach',
         introUrl: 'https://julia116.com/hamdeok-beach/',
@@ -373,6 +438,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80',
         description: '第一晚入住極具詩意的小朝天海景別墅，白牆紅磚超好拍，下午 4 點即可入住房間。',
         location: '小朝天海景泳池別墅 (朝天邑一流洞路1536號)',
+        coords: LOC.jocheonPool,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Pool+Villa+Jocheon+Jeju',
         phone: '+82-507-1394-5085',
         details: [
@@ -398,6 +464,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
         description: '在熱門的 London Bagel Museum 品嚐香 Q 貝果，建議使用 Catchtable App 線上登記候位。',
         location: 'London Bagel Museum Jeju',
+        coords: LOC.londonBagel,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=London+Bagel+Museum+Jeju',
         introUrl: 'https://mimi-travel.com/london-bagel-museum-jeju/',
         transit: { type: 'drive', time: '15 分鐘', dist: '11 公里', desc: '開車沿著海岸線往東' }
@@ -409,6 +476,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
         description: '在此站與剛降落出關的主角(您)會合！一同參觀海女史料與生活日常展品，體驗傳統文化。',
         location: '海女博物館 (해녀박물관)',
+        coords: LOC.haenyeo,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Jeju+Haenyeo+Museum',
         introUrl: 'https://anise.tw/244342',
         transit: { type: 'drive', time: '10 分鐘', dist: '6.5 公里', desc: '前往後面兩天入住的泳池別墅' }
@@ -420,11 +488,12 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80',
         description: '入住超讚的 Jungane 溫水泳池別墅！晚上可以利用別墅廚房可烹煮餐食，備有咖啡膠囊。',
         location: 'Jungane 水療與泳池別墅 (21棟)',
+        coords: LOC.jungane,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Jungane+Spa+and+Pool+Villa',
         phone: '+82-507-1394-5085',
         details: [
           '地址：濟州市舊左邑海馬支海岸路2486-21號',
-          '入住時間：4點 | 退房時間：11點',
+          '入住時間：4點 | 退房時間:11點',
           '貼心提示：需自備牙刷與刮鬍刀',
           '民宿亮點：密碼鎖、水療池、溫水泳池、星巴克咖啡膠囊'
         ]
@@ -444,6 +513,7 @@ export const familyItinerary = [
         tag: 'activity',
         description: '出發前往城山港搭乘渡輪，島上建議租借電動車，吹著海風進行環島。',
         location: '城山港/牛島渡輪',
+        coords: LOC.seongsanPort,
         transit: { type: 'ferry', time: '15 分鐘', dist: '3.8 公里', desc: '抵達牛島港口' }
       },
       {
@@ -453,6 +523,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
         description: '騎電動車環島欣賞碧綠海洋，品嚐必吃的特產花生冰淇淋，以及獨特造型的漢拏山炒飯。',
         location: '牛島 (우도)',
+        coords: LOC.udo,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Udo+Island',
         introUrl: 'https://www.bring-you.info/zh-tw/udo',
         transit: { type: 'drive', time: '20 分鐘', dist: '14 公里', desc: '搭船回本島後開車回別墅' }
@@ -463,7 +534,8 @@ export const familyItinerary = [
         tag: 'hotel',
         coverImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80',
         description: '返回 Jungane 別墅享受溫水泳池，下午大家一起在民宿戲水，享受難得的家庭放鬆時刻。',
-        location: 'Jungane 水療與泳池別墅'
+        location: 'Jungane 水療與泳池別墅',
+        coords: LOC.jungane
       }
     ]
   },
@@ -481,6 +553,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=600&q=80',
         description: '全亞洲最大水族館之一！欣賞巨大的海底觀景窗與精彩的大型雜技及海豚表演。',
         location: 'Aqua Planet 濟州',
+        coords: LOC.aquaPlanet,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Aqua+Planet+Jeju',
         introUrl: 'https://yoti.life/jeju-aquaplanet/',
         transit: { type: 'drive', time: '50 分鐘', dist: '42 公里', desc: '開車返回濟州市區' }
@@ -492,6 +565,7 @@ export const familyItinerary = [
         coverImage: 'https://images.unsplash.com/photo-1560243563-062bff001d68?auto=format&fit=crop&w=600&q=80',
         description: '前往市區超好買的樂天免稅店進行美妝、伴手禮採購。',
         location: '樂天免稅店濟州店',
+        coords: LOC.lotteDuty,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Lotte+Duty+Free+Jeju',
         introUrl: 'https://www.bring-you.info/zh-tw/jeju-travel-guide',
         transit: { type: 'drive', time: '15 分鐘', dist: '5 公里', desc: '開車還車，隨後入住飯店' }
@@ -502,6 +576,7 @@ export const familyItinerary = [
         tag: 'activity',
         description: '完成幾天下來的自駕車輛歸還檢查手續（主角此時會租用自己後續的車子）。',
         location: '租車公司服務處',
+        coords: LOC.rentalShop,
         transit: { type: 'walk', time: '5 分鐘', dist: '350 公尺', desc: '步行至市區飯店' }
       },
       {
@@ -510,6 +585,7 @@ export const familyItinerary = [
         tag: 'hotel',
         description: '今晚同樣入住機能極佳的 Air City 飯店，周圍蓮洞步行街買消夜、逛化妝品超方便。',
         location: '濟州艾爾城市飯店 (Hotel Air City Jeju)',
+        coords: LOC.airCity,
         googleMapUrl: 'https://www.google.com/maps/search/?api=1&query=Hotel+Air+City+Jeju',
         details: ['位置：濟州市蓮洞，離機場僅 10 分鐘車程', '周邊：蓮洞步行街、炸雞店、超商雲集']
       }
@@ -536,6 +612,7 @@ export const familyItinerary = [
         tag: 'flight',
         description: '搭乘計程車抵達機場辦理行李託運、退稅以及最後免稅商店採購。',
         location: '濟州國際機場',
+        coords: LOC.CJU,
         transit: { type: 'flight', time: '2 小時 25 分鐘', dist: '1100 公里', desc: '飛機起飛返台' }
       },
       {
@@ -543,14 +620,16 @@ export const familyItinerary = [
         title: '🛫 飛機起飛',
         tag: 'flight',
         description: '搭乘返航客機告別美麗的濟州島。',
-        location: '濟州國際機場'
+        location: '濟州國際機場',
+        coords: LOC.CJU
       },
       {
         time: '12:15',
         title: '🏡 抵達高雄',
         tag: 'flight',
         description: '順利抵達小港機場，回到溫馨的家，結束難忘的家族濟州之旅。',
-        location: '高雄小港國際機場'
+        location: '高雄小港國際機場',
+        coords: LOC.KHH
       }
     ]
   }

@@ -266,14 +266,27 @@ export default function MapExplorer({
                     ref={(el) => { if (el) markerRefs.current[`poi-${poi.id}`] = el; }}
                     eventHandlers={{ click: () => setActivePoi(poi.id) }}
                   >
-                    <Popup className="cozy-popup" maxWidth={230} minWidth={200}>
+                    <Popup className="cozy-popup" maxWidth={240} minWidth={210}>
                       <div className="popup-inner">
+                        {poi.coverImage && (
+                          <img src={poi.coverImage} alt={poi.title} className="popup-img" />
+                        )}
                         <div className="popup-body">
                           <span className="popup-tag" style={{ borderColor: cfg.color, color: cfg.color, background: cfg.color + '18' }}>
-                            {cfg.emoji} {cfg.label}
+                            {poi.isMustVisit ? '⭐ 必去' : `${cfg.emoji} ${cfg.label}`}
                           </span>
                           <h4 className="popup-title">{poi.title}</h4>
                           <p className="popup-duration">{poi.sub}</p>
+                          {poi.url && (
+                            <a
+                              href={poi.url}
+                              target="_blank" rel="noopener noreferrer"
+                              className="popup-link"
+                              style={{ color: cfg.color, marginBottom: 4 }}
+                            >
+                              📖 查看攻略 <ExternalLink size={11} />
+                            </a>
+                          )}
                           <a
                             href={googleMapsUrl(poi.lat, poi.lng, poi.title)}
                             target="_blank" rel="noopener noreferrer"

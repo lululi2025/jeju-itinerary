@@ -5,17 +5,15 @@ import Guide from './components/Guide';
 import Timeline from './components/Timeline';
 import MapExplorer from './components/MapExplorer';
 import {
-  Compass, MapPin, Calendar, Briefcase, Share2, Download,
+  Compass, MapPin, Calendar, Briefcase, ShoppingBag, Share2, Download,
   User, Users, MoreHorizontal,
 } from 'lucide-react';
 import './index.css';
 
 function App() {
   const [itineraryMode, setItineraryMode] = useState('mine');
-  // 'itinerary' | 'map' | 'prep'
+  // 'itinerary' | 'map' | 'prep' | 'guide'
   const [mainView, setMainView] = useState('itinerary');
-  // Sub-tab for the prep view
-  const [prepTab, setPrepTab] = useState('prep'); // 'prep' | 'guide'
   const [menuOpen, setMenuOpen] = useState(false);
 
   const activeItinerary = itineraryMode === 'mine' ? myItinerary : familyItinerary;
@@ -90,8 +88,8 @@ function App() {
     : { title: '家人濟州 6 日', range: '7/6 – 7/11', tag: '溫馨家族 👨‍👩‍👧‍👦' };
 
   // Whether the day rail is relevant in the current view.
-  // 行前 page is day-agnostic — hide the day rail to give content more room.
-  const showDayRail = mainView !== 'prep';
+  // 行前 / 攻略 pages are day-agnostic — hide the day rail to give content more room.
+  const showDayRail = mainView === 'itinerary' || mainView === 'map';
 
   return (
     <div className="app-shell">
@@ -185,29 +183,6 @@ function App() {
           </div>
         )}
 
-        {/* Sub-tabs for the prep page only */}
-        {mainView === 'prep' && (
-          <div className="prep-subtabs" role="tablist" aria-label="行前內容">
-            <button
-              className={`prep-subtab-btn ${prepTab === 'prep' ? 'active' : ''}`}
-              style={prepTab === 'prep' ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent, background: selectedDay.theme.accent + '15' } : {}}
-              onClick={() => setPrepTab('prep')}
-              role="tab"
-              aria-selected={prepTab === 'prep'}
-            >
-              🎒 行前準備
-            </button>
-            <button
-              className={`prep-subtab-btn ${prepTab === 'guide' ? 'active' : ''}`}
-              style={prepTab === 'guide' ? { borderColor: selectedDay.theme.accent, color: selectedDay.theme.accent, background: selectedDay.theme.accent + '15' } : {}}
-              onClick={() => setPrepTab('guide')}
-              role="tab"
-              aria-selected={prepTab === 'guide'}
-            >
-              🗺️ 必買 & 景點
-            </button>
-          </div>
-        )}
       </header>
 
       {/* ─────────────────────────────────────────
@@ -222,9 +197,12 @@ function App() {
         )}
         {mainView === 'prep' && (
           <div className="prep-page">
-            {prepTab === 'prep'
-              ? <Dashboard themeColor={selectedDay.theme.accent} />
-              : <Guide themeColor={selectedDay.theme.accent} />}
+            <Dashboard themeColor={selectedDay.theme.accent} />
+          </div>
+        )}
+        {mainView === 'guide' && (
+          <div className="prep-page">
+            <Guide themeColor={selectedDay.theme.accent} />
           </div>
         )}
       </main>
@@ -246,6 +224,13 @@ function App() {
         >
           <MapPin size={20} />
           <span>地圖</span>
+        </button>
+        <button
+          className={`bottom-nav-btn ${mainView === 'guide' ? 'active' : ''}`}
+          onClick={() => handleViewSelect('guide')}
+        >
+          <ShoppingBag size={20} />
+          <span>必買景點</span>
         </button>
         <button
           className={`bottom-nav-btn ${mainView === 'prep' ? 'active' : ''}`}

@@ -172,6 +172,42 @@ export default function Dashboard({ themeColor }) {
         </div>
       </div>
 
+      {/* Currency Converter — moved up for quick everyday access */}
+      <div className="widget currency-widget">
+        <h3 className="widget-title">
+          <ArrowLeftRight size={18} />
+          即時匯率換算助理
+        </h3>
+        <div className="currency-inputs">
+          <div className="currency-input-group">
+            <span className="currency-label">TWD 台幣</span>
+            <input
+              type="text"
+              value={twd}
+              onChange={handleTwdChange}
+              className="currency-field"
+              placeholder="輸入台幣"
+              inputMode="decimal"
+            />
+          </div>
+          <div className="currency-divider">
+            <span>⇄</span>
+          </div>
+          <div className="currency-input-group">
+            <span className="currency-label">KRW 韓元</span>
+            <input
+              type="text"
+              value={krw}
+              onChange={handleKrwChange}
+              className="currency-field"
+              placeholder="輸入韓元"
+              inputMode="decimal"
+            />
+          </div>
+        </div>
+        <span className="exchange-rate-disclaimer">參考匯率：1 TWD ≈ 42.15 KRW</span>
+      </div>
+
       {/* Weather Widget */}
       <div className="widget weather-widget">
         <h3 className="widget-title">
@@ -193,40 +229,6 @@ export default function Dashboard({ themeColor }) {
             );
           })}
         </div>
-      </div>
-
-      {/* Currency Converter */}
-      <div className="widget currency-widget">
-        <h3 className="widget-title">
-          <ArrowLeftRight size={18} />
-          即時匯率換算助理
-        </h3>
-        <div className="currency-inputs">
-          <div className="currency-input-group">
-            <span className="currency-label">TWD 台幣</span>
-            <input 
-              type="text" 
-              value={twd} 
-              onChange={handleTwdChange} 
-              className="currency-field"
-              placeholder="輸入台幣"
-            />
-          </div>
-          <div className="currency-divider">
-            <span>⇄</span>
-          </div>
-          <div className="currency-input-group">
-            <span className="currency-label">KRW 韓元</span>
-            <input 
-              type="text" 
-              value={krw} 
-              onChange={handleKrwChange} 
-              className="currency-field"
-              placeholder="輸入韓元"
-            />
-          </div>
-        </div>
-        <span className="exchange-rate-disclaimer">參考匯率：1 TWD ≈ 42.15 KRW</span>
       </div>
 
       {/* Packing Checklist */}

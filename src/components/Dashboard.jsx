@@ -2,13 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { Clock, Briefcase, ExternalLink, ShieldAlert, Award, ArrowLeftRight, Sun, Cloud, CloudRain } from 'lucide-react';
 
 const PACKING_ITEMS = [
-  { id: 'passport', text: '護照 ＆ 登機憑證', category: '必備' },
-  { id: 'intl_driver', text: '國際駕照 ＆ 台灣駕照 (週六自駕必備！)', category: '必備' },
-  { id: 'toothbrush', text: '自備牙刷牙膏 ＆ 刮鬍刀 (前二日民宿無提供！)', category: '盥洗' },
-  { id: 'capsules', text: '星巴克咖啡膠囊 (別墅配備咖啡機)', category: '休閒' },
-  { id: 'krw_cash', text: '韓元現金 ＆ T-money 交通卡', category: '必備' },
-  { id: 'esim', text: '韓國上網卡 / eSIM 啟用', category: '必備' },
-  { id: 'charger', text: '轉接頭 (韓國是 220V 雙圓頭) ＆ 行動電源', category: '必備' }
+  // ─── 入境文件 ───
+  { id: 'passport', text: '護照（離境日 6 個月效期以上）', category: '入境' },
+  { id: 'earrival', text: 'e-Arrival Card 電子入境卡（行前 3 天線上填）', category: '入境' },
+  { id: 'boarding_pass', text: '登機證 ＆ 行李託運條（電子或紙本）', category: '入境' },
+  { id: 'intl_driver', text: '國際駕照 ＆ 台灣駕照（自駕必備）', category: '入境' },
+
+  // ─── 金流 ───
+  { id: 'credit_cards', text: '信用卡 ×2（Visa / Master，主要付款）', category: '金流' },
+  { id: 'krw_cash', text: '韓元現金 ＆ T-money 交通卡', category: '金流' },
+
+  // ─── 通訊 / 3C ───
+  { id: 'esim', text: '韓國 eSIM / WiFi 機', category: '通訊' },
+  { id: 'adapter', text: '轉接頭（韓國 220V 雙圓頭 type C/F）', category: '通訊' },
+  { id: 'charger', text: '行動電源（限隨身、≤100Wh、貼絕緣膠帶）', category: '通訊' },
+  { id: 'apps', text: '預下載 App：Naver Map、KakaoMap、Papago、KakaoTaxi', category: '通訊' },
+
+  // ─── ⚠️ 海關地雷 ───
+  { id: 'no_eve', text: '⚠️ 別帶 EVE 止痛藥（韓國列管，違規會被扣）', category: '地雷' },
+  { id: 'powerbank_rule', text: '⚠️ 行動電源不能托運，須隨身 + 絕緣膠帶 + 透明袋', category: '地雷' },
+
+  // ─── 🏊 泳池 / 玩水 ───
+  { id: 'swimwear', text: '泳衣（兩晚 Jungane 泳池別墅必備）', category: '泳池' },
+  { id: 'waterproof_bag', text: '防水袋 / 防水手機殼（牛島騎車、玩水）', category: '泳池' },
+  { id: 'slippers', text: '室內拖鞋 / 海灘涼鞋', category: '泳池' },
+
+  // ─── 盥洗 ───
+  { id: 'toothbrush', text: '自備牙刷牙膏 ＆ 刮鬍刀（前二日民宿無提供）', category: '盥洗' },
+  { id: 'toiletries', text: '沐浴用品 / 卸妝品（韓系不一定合用）', category: '盥洗' },
+  { id: 'sunscreen', text: '防曬乳 SPF50+（7 月紫外線爆表）', category: '盥洗' },
+
+  // ─── ☀️ 夏季配備 ───
+  { id: 'sunglasses', text: '太陽眼鏡 + 帽子', category: '夏季' },
+  { id: 'umbrella', text: '輕便雨傘 / 雨衣（7/10 預報陣雨）', category: '夏季' },
+  { id: 'bug_balm', text: '蚊蟲藥膏（咸德海灘、牛島皆有蚊）', category: '夏季' },
+  { id: 'seasickness', text: '暈船藥（牛島渡輪約 15 分鐘）', category: '夏季' },
+
+  // ─── 💊 藥品 ───
+  { id: 'meds', text: '退燒、感冒、腸胃藥（普拿疼/加倍佳可，EVE 不可）', category: '藥品' },
+  { id: 'personal_meds', text: '個人慢性病用藥 + 處方箋影本', category: '藥品' },
+
+  // ─── 衣物 ───
+  { id: 'shoes', text: '走路鞋（城山日出峰要爬 30 分鐘）', category: '衣物' },
+  { id: 'light_jacket', text: '短袖 + 1 件薄外套（冷氣、清晨涼）', category: '衣物' },
+
+  // ─── 休閒 ───
+  { id: 'capsules', text: '星巴克咖啡膠囊（別墅配備咖啡機）', category: '休閒' },
 ];
 
 const WEATHER_FORECAST = [

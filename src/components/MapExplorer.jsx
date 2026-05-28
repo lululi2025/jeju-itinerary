@@ -159,7 +159,8 @@ export default function MapExplorer({
   const handleStopClick = (stop, idx) => {
     setActiveStopIdx(idx);
     setFlyTarget(stop.coords);
-    // Try to open popup
+    setSheetExpanded(false);  // collapse sheet so map is visible
+    // Try to open popup after fly animation
     setTimeout(() => {
       const ref = markerRefs.current[`stop-${idx}`];
       if (ref) ref.openPopup();
@@ -169,6 +170,7 @@ export default function MapExplorer({
   const handlePoiClick = (poi) => {
     setActivePoi(poi.id);
     setFlyTarget({ lat: poi.lat, lng: poi.lng });
+    setSheetExpanded(false);  // collapse sheet so map is visible
     setTimeout(() => {
       const ref = markerRefs.current[`poi-${poi.id}`];
       if (ref) ref.openPopup();

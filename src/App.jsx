@@ -230,7 +230,7 @@ function App() {
           onClick={() => handleViewSelect('guide')}
         >
           <ShoppingBag size={20} />
-          <span>必買景點</span>
+          <span>必買・景點</span>
         </button>
         <button
           className={`bottom-nav-btn ${mainView === 'prep' ? 'active' : ''}`}

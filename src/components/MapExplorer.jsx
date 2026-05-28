@@ -266,7 +266,7 @@ export default function MapExplorer({
                     ref={(el) => { if (el) markerRefs.current[`poi-${poi.id}`] = el; }}
                     eventHandlers={{ click: () => setActivePoi(poi.id) }}
                   >
-                    <Popup className="cozy-popup" maxWidth={240} minWidth={210}>
+                    <Popup className="cozy-popup" maxWidth={260} minWidth={220}>
                       <div className="popup-inner">
                         {poi.coverImage && (
                           <img src={poi.coverImage} alt={poi.title} className="popup-img" />
@@ -276,7 +276,10 @@ export default function MapExplorer({
                             {poi.isMustVisit ? '⭐ 必去' : `${cfg.emoji} ${cfg.label}`}
                           </span>
                           <h4 className="popup-title">{poi.title}</h4>
-                          <p className="popup-duration">{poi.sub}</p>
+                          <p className="popup-sub">{poi.sub}</p>
+                          {(poi.longDesc || poi.desc) && (
+                            <p className="popup-desc">{poi.longDesc || poi.desc}</p>
+                          )}
                           {poi.url && (
                             <a
                               href={poi.url}

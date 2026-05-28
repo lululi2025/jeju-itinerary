@@ -1781,6 +1781,21 @@ body {
   font-weight: 700;
 }
 
+.popup-sub {
+  font-size: 0.7rem;
+  color: #8a7a68;
+  margin: 0;
+  font-weight: 600;
+}
+
+.popup-desc {
+  font-size: 0.74rem;
+  color: #5d4636;
+  margin: 0.1rem 0 0.25rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
 .popup-link {
   display: inline-flex;
   align-items: center;
@@ -2643,20 +2658,26 @@ body {
   gap: 0.3rem;
   border: 0;
   background: transparent;
-  padding: 0.4rem 0.75rem;
+  padding: 0.45rem 0.85rem;
   border-radius: 999px;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: var(--text-dark);
   cursor: pointer;
   transition: var(--transition-fast);
-  min-height: 32px;
+  min-height: 34px;
+  opacity: 0.7;
+}
+
+.map-mode-pill-btn:hover {
+  opacity: 1;
 }
 
 .map-mode-pill-btn.active {
   /* inline style sets accent background + white text */
   color: white;
+  opacity: 1;
 }
 
 /* Filter trigger button (景點 categories popover) */

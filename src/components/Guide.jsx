@@ -1,27 +1,4 @@
-import React, { useState } from 'react';
-import { ShoppingBag, MapPin, ExternalLink, Star, Clock, Map as MapIcon, List } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { MUST_VISITS, CATEGORIES } from '../data/mapPois';
-
-/* ── Custom Marker Icon (emoji-based, no external image needed) ── */
-const createEmojiIcon = (emoji) =>
-  L.divIcon({
-    html: `<div style="
-      font-size: 22px;
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      background: #fffdf6;
-      border: 3px solid #5d4636;
-      border-radius: 50%;
-      box-shadow: 2px 2px 0px #5d4636;
-    ">${emoji}</div>`,
-    className: '',
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -38]
-  });
+import { ExternalLink, Star } from 'lucide-react';
 
 /* ─────────────────────────────────────────────────────────────
    🛍️  MUST-BUY  — 12 curated items
@@ -151,161 +128,43 @@ const MUST_BUYS = [
 ];
 
 
-/* ── Jeju Island center for map default view ── */
-const JEJU_CENTER = [33.38, 126.55];
-
-export default function Guide({ themeColor }) {
-  const [activeSubTab, setActiveSubTab] = useState('buys');
-  const [mapView, setMapView] = useState(false);  // toggle list ↔ map
-  const [focusedSpot, setFocusedSpot] = useState(null);
-
+export default function Guide() {
   return (
     <div className="guide-container animate-fade-in">
-      {/* Internal Sub-Tab Selection */}
-      <div className="guide-subtabs">
-        <button
-          className={`guide-subtab-btn ${activeSubTab === 'buys' ? 'active' : ''}`}
-          onClick={() => { setActiveSubTab('buys'); setMapView(false); }}
-          style={activeSubTab === 'buys' ? { '--active-accent': themeColor } : {}}
-        >
-          <ShoppingBag size={15} />
-          <span>🛍️ 必買清單</span>
-        </button>
-        <button
-          className={`guide-subtab-btn ${activeSubTab === 'visits' ? 'active' : ''}`}
-          onClick={() => setActiveSubTab('visits')}
-          style={activeSubTab === 'visits' ? { '--active-accent': themeColor } : {}}
-        >
-          <MapPin size={15} />
-          <span>🏔️ 必去景點</span>
-        </button>
+      <div className="guide-intro-banner">
+        <span className="emoji">🍊</span>
+        <p>精選 2026 濟州島與韓國 12 大必買名產！涵蓋機場限定、柑橘特產、K-Beauty 美妝、文創與超市零食。點擊標題可閱讀台灣旅遊達人的詳細圖文攻略。景點資訊請到「地圖」分頁查看，⭐ 必去 12 處已標出。</p>
       </div>
 
-      {/* Map / List toggle — only for visits tab */}
-      {activeSubTab === 'visits' && (
-        <div className="guide-view-toggle">
-          <button
-            className={`view-toggle-btn ${!mapView ? 'active' : ''}`}
-            onClick={() => setMapView(false)}
-          >
-            <List size={14} />
-            <span>清單</span>
-          </button>
-          <button
-            className={`view-toggle-btn ${mapView ? 'active' : ''}`}
-            onClick={() => setMapView(true)}
-          >
-            <MapIcon size={14} />
-            <span>地圖</span>
-          </button>
-        </div>
-      )}
-
-      {/* Content */}
       <div className="guide-content-list">
-        {activeSubTab === 'buys' ? (
-          /* ──── 必買清單 ──── */
-          <>
-            <div className="guide-intro-banner">
-              <span className="emoji">🍊</span>
-              <p>精選 2026 濟州島與韓國 12 大必買名產！涵蓋機場限定、柑橘特產、K-Beauty 美妝、文創與超市零食。點擊標題可閱讀台灣旅遊達人的詳細圖文攻略。</p>
+        {MUST_BUYS.map((item) => (
+          <div key={item.id} className="guide-card">
+            <div className="guide-card-cover">
+              <img src={item.image} alt={item.title} className="guide-card-img" loading="lazy" />
+              <span className="guide-card-cover-badge">{item.tag}</span>
             </div>
-            {MUST_BUYS.map((item) => (
-              <div key={item.id} className="guide-card">
-                <div className="guide-card-cover">
-                  <img src={item.image} alt={item.title} className="guide-card-img" loading="lazy" />
-                  <span className="guide-card-cover-badge">{item.tag}</span>
-                </div>
-                <div className="guide-card-body">
-                  <div className="guide-card-header">
-                    <div className="rating-stars">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} size={12} fill={i < Math.floor(item.rating) ? '#f59e0b' : 'none'} stroke="#f59e0b" />
-                      ))}
-                      <span className="rating-num">{item.rating}</span>
-                    </div>
-                  </div>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="guide-card-title-link">
-                    <h4 className="guide-card-title">
-                      {item.title}
-                      <ExternalLink size={13} className="link-icon" />
-                    </h4>
-                  </a>
-                  {item.source && (
-                    <p className="guide-card-source">📖 攻略來源：{item.source}</p>
-                  )}
-                  <p className="guide-card-desc">{item.desc}</p>
+            <div className="guide-card-body">
+              <div className="guide-card-header">
+                <div className="rating-stars">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={12} fill={i < Math.floor(item.rating) ? '#f59e0b' : 'none'} stroke="#f59e0b" />
+                  ))}
+                  <span className="rating-num">{item.rating}</span>
                 </div>
               </div>
-            ))}
-          </>
-        ) : mapView ? (
-          /* ──── 景點地圖 ──── */
-          <div className="guide-map-wrapper">
-            <MapContainer
-              center={JEJU_CENTER}
-              zoom={10}
-              scrollWheelZoom={true}
-              style={{ width: '100%', height: '100%', borderRadius: '1rem' }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {MUST_VISITS.map((spot) => (
-                <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={createEmojiIcon(CATEGORIES[spot.cat]?.emoji ?? '📍')}>
-                  <Popup className="cozy-popup" maxWidth={260} minWidth={220}>
-                    <div className="popup-inner">
-                      <img src={spot.coverImage} alt={spot.title} className="popup-img" />
-                      <div className="popup-body">
-                        <span className="popup-tag">{spot.tag}</span>
-                        <h4 className="popup-title">{spot.title}</h4>
-                        <p className="popup-duration">⏱️ 建議停留 {spot.duration}</p>
-                        <a href={spot.url} target="_blank" rel="noopener noreferrer" className="popup-link">
-                          查看攻略 →
-                        </a>
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className="guide-card-title-link">
+                <h4 className="guide-card-title">
+                  {item.title}
+                  <ExternalLink size={13} className="link-icon" />
+                </h4>
+              </a>
+              {item.source && (
+                <p className="guide-card-source">📖 攻略來源：{item.source}</p>
+              )}
+              <p className="guide-card-desc">{item.desc}</p>
+            </div>
           </div>
-        ) : (
-          /* ──── 景點清單 ──── */
-          <>
-            <div className="guide-intro-banner">
-              <span className="emoji">🌋</span>
-              <p>精選 12 大此生必訪濟州島地標！涵蓋 UNESCO 世界遺產、夢幻離島、海景咖啡街、沉浸式美術館和傳統夜市。點擊標題可直接查看繁體中文攻略文。</p>
-            </div>
-            {MUST_VISITS.map((item) => (
-              <div key={item.id} className="guide-card">
-                <div className="guide-card-cover">
-                  <img src={item.coverImage} alt={item.title} className="guide-card-img" loading="lazy" />
-                  <span className="guide-card-cover-badge">{item.tag}</span>
-                </div>
-                <div className="guide-card-body">
-                  <div className="guide-card-header">
-                    <span className="duration-badge">
-                      <Clock size={11} />
-                      建議停留 {item.duration}
-                    </span>
-                  </div>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="guide-card-title-link">
-                    <h4 className="guide-card-title">
-                      {item.title}
-                      <ExternalLink size={13} className="link-icon" />
-                    </h4>
-                  </a>
-                  {item.source && (
-                    <p className="guide-card-source">📖 攻略來源：{item.source}</p>
-                  )}
-                  <p className="guide-card-desc">{item.longDesc}</p>
-                </div>
-              </div>
-            ))}
-          </>
-        )}
+        ))}
       </div>
     </div>
   );

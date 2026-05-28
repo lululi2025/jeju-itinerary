@@ -2571,72 +2571,183 @@ body {
    🗺️  MapExplorer V2 — Route mode + Explore mode + Bottom sheet
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════════════
+   🗺️  Map view — full-bleed map with floating controls (Apple Maps style)
+   ═══════════════════════════════════════════════════════════════════════ */
+
 .map-explorer-v2 {
   position: relative;
+  /* topbar (no day rail on map view) ~56 + bottom-nav ~64 = ~120 */
+  height: calc(100dvh - 120px);
+  min-height: 500px;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--theme-border);
+  background: #d4e8f0;
+}
+
+/* Map canvas = absolute fills the entire container */
+.map-canvas-v2 {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.map-canvas-v2 .leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-primary);
+  background: #d4e8f0;
+}
+
+/* ───── Floating overlay (top of map) ───── */
+.map-overlay-top {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  z-index: 400;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  height: calc(100dvh - 130px - 64px); /* topbar + bottom-nav approx */
-  min-height: 520px;
+  pointer-events: none; /* so map gestures pass through the empty bits */
 }
 
-.map-mode-bar {
-  display: inline-flex;
-  align-self: flex-start;
-  background: white;
+.map-overlay-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.map-overlay-card {
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.94);
   border: 1px solid var(--theme-border);
-  border-radius: 999px;
-  padding: 3px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 0.85rem;
+  box-shadow: 0 4px 16px -6px rgba(15, 23, 42, 0.18), 0 1px 4px rgba(15, 23, 42, 0.06);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
 }
 
-.map-mode-btn {
+/* Mode toggle pill (動線 / 探索) */
+.map-mode-pill {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  gap: 2px;
+}
+
+.map-mode-pill-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  border: 1px solid transparent;
+  gap: 0.3rem;
+  border: 0;
   background: transparent;
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem 0.75rem;
   border-radius: 999px;
   font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition-fast);
+  min-height: 32px;
 }
-.map-mode-btn.active {
-  background: var(--theme-accent);
+
+.map-mode-pill-btn.active {
+  /* inline style sets accent background + white text */
   color: white;
 }
 
-.map-mode-count {
-  background: rgba(0, 0, 0, 0.08);
-  color: inherit;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 999px;
-}
-.map-mode-btn.active .map-mode-count {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Map canvas v2 (taller, fills viewport) */
-.map-canvas-v2 {
-  flex: 1;
-  position: relative;
-  border-radius: 1.1rem;
-  overflow: hidden;
+/* Filter trigger button (景點 categories popover) */
+.map-filter-trigger {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid var(--theme-border);
-  box-shadow: var(--shadow-md);
-  background: #d4e8f0;
-  transition: height var(--transition-normal);
+  padding: 0.42rem 0.75rem;
+  border-radius: 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  min-height: 36px;
 }
 
-.map-canvas-v2.sheet-up {
-  height: 38vh;
-  flex: none;
+.map-filter-trigger:hover {
+  color: var(--theme-accent);
+}
+
+.filter-chevron {
+  transition: transform var(--transition-fast);
+}
+.filter-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Day rail (route mode) — horizontal scroll */
+.map-day-rail {
+  padding: 4px;
+  overflow: hidden;
+}
+
+.map-day-rail-inner {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.map-day-rail-inner::-webkit-scrollbar { display: none; }
+
+.map-day-chip {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--theme-border);
+  background: white;
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.65rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.map-day-chip-date {
+  font-size: 0.66rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* Filter chip strip (explore mode, opens on tap) */
+.map-filter-strip {
+  padding: 6px;
+  overflow: hidden;
+  animation: filter-strip-in 0.18s var(--ease-custom);
+}
+
+.map-filter-strip-inner {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.map-filter-strip-inner::-webkit-scrollbar { display: none; }
+
+@keyframes filter-strip-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .map-canvas-v2 .leaflet-container {
@@ -2718,22 +2829,37 @@ body {
 
 /* ----- Bottom sheet ----- */
 .map-sheet {
-  position: relative;
-  background: white;
-  border: 1px solid var(--theme-border);
+  /* Bottom sheet: direct height swap (snappy, no animation).
+     CSS transitions for height/transform are unreliable across some
+     Chromium configurations — snap behavior is acceptable here. */
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 400;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--theme-border);
   border-radius: 1.2rem 1.2rem 0 0;
-  box-shadow: 0 -10px 32px -16px rgba(15, 23, 42, 0.18);
-  max-height: 26vh;
+  box-shadow: 0 -10px 32px -16px rgba(15, 23, 42, 0.25);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
   display: flex;
   flex-direction: column;
-  transition: max-height var(--transition-normal);
   overflow: hidden;
 }
 
 .map-sheet.expanded {
-  /* Take all remaining flex space — canvas already fixed via .sheet-up */
-  max-height: none;
-  flex: 1 1 auto;
+  height: 55vh;
+  max-height: 460px;
+}
+
+/* Soft fade-in for the body content when expanded */
+.map-sheet:not(.expanded) .map-sheet-body { opacity: 0; pointer-events: none; }
+.map-sheet.expanded .map-sheet-body { animation: sheet-body-fade-in 0.28s var(--ease-custom); }
+@keyframes sheet-body-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .map-sheet-handle {

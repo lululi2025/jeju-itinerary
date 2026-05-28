@@ -4,7 +4,7 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ExternalLink, Route, Compass, ChevronUp, ChevronDown } from 'lucide-react';
+import { ExternalLink, Route, Compass, ChevronUp, ChevronDown, Filter } from 'lucide-react';
 import { JEJU_POIS, CATEGORIES } from '../data/mapPois';
 
 /* ──────────────────────────────────────────────
@@ -99,14 +99,30 @@ function FlyTo({ target }) {
 /* ──────────────────────────────────────────────
    MapExplorer component
    ────────────────────────────────────────────── */
-export default function MapExplorer({ dayData, accent = '#0284c7' }) {
+export default function MapExplorer({
+  dayData,
+  accent = '#0284c7',
+  itinerary = [],
+  selectedDayNum,
+  onDaySelect,
+}) {
   const [mode, setMode] = useState('route'); // 'route' | 'explore'
   const [activeCat, setActiveCat] = useState('all');
   const [flyTarget, setFlyTarget] = useState(null);
   const [activeStopIdx, setActiveStopIdx] = useState(null);
   const [activePoi, setActivePoi] = useState(null);
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const markerRefs = useRef({});
+  const dayRailRef = useRef(null);
+
+  // Auto-scroll active day chip into view
+  useEffect(() => {
+    const rail = dayRailRef.current;
+    if (!rail) return;
+    const chip = rail.querySelector(`[data-day="${selectedDayNum}"]`);
+    chip?.scrollIntoView?.({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [selectedDayNum]);
 
   // Route stops (must have coords AND be on Jeju)
   const routeStops = useMemo(
@@ -159,55 +175,12 @@ export default function MapExplorer({ dayData, accent = '#0284c7' }) {
     }, 800);
   };
 
+  const activeCfg = activeCat !== 'all' ? CATEGORIES[activeCat] : null;
+
   return (
     <div className="map-explorer-v2">
-      {/* Top: mode toggle */}
-      <div className="map-mode-bar">
-        <button
-          className={`map-mode-btn ${mode === 'route' ? 'active' : ''}`}
-          style={mode === 'route' ? { borderColor: accent, color: accent, background: accent + '15' } : {}}
-          onClick={() => setMode('route')}
-        >
-          <Route size={15} />
-          <span>今日動線</span>
-          <span className="map-mode-count">{routeStops.length}</span>
-        </button>
-        <button
-          className={`map-mode-btn ${mode === 'explore' ? 'active' : ''}`}
-          onClick={() => setMode('explore')}
-        >
-          <Compass size={15} />
-          <span>景點探索</span>
-          <span className="map-mode-count">{JEJU_POIS.length}</span>
-        </button>
-      </div>
-
-      {/* Filter chips (only in explore mode) */}
-      {mode === 'explore' && (
-        <div className="map-filter-bar">
-          {ALL_CATS.map((cat) => {
-            const isAll = cat === 'all';
-            const cfg = isAll ? null : CATEGORIES[cat];
-            const isActive = activeCat === cat;
-            return (
-              <button
-                key={cat}
-                className={`map-chip ${isActive ? 'map-chip-active' : ''}`}
-                style={isActive && cfg ? { borderColor: cfg.color, background: cfg.color + '22', color: cfg.color } : {}}
-                onClick={() => { setActiveCat(cat); setFlyTarget(null); setActivePoi(null); }}
-              >
-                {isAll ? '🗺️ 全部' : `${cfg.emoji} ${cfg.label}`}
-                <span className="map-chip-count">
-                  {isAll ? JEJU_POIS.length : JEJU_POIS.filter((p) => p.cat === cat).length}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Map canvas */}
-      <div className={`map-canvas-v2 ${sheetExpanded ? 'sheet-up' : ''}`}>
+      {/* ───── Map fills the entire container ───── */}
+      <div className="map-canvas-v2">
         <MapContainer
           center={JEJU_CENTER}
           zoom={10}
@@ -318,6 +291,109 @@ export default function MapExplorer({ dayData, accent = '#0284c7' }) {
             </>
           )}
         </MapContainer>
+      </div>
+
+      {/* ───── Floating overlay (top of map) ───── */}
+      <div className="map-overlay-top">
+        {/* Row 1: mode toggle + (in explore mode) filter trigger */}
+        <div className="map-overlay-row">
+          <div className="map-overlay-card map-mode-pill" role="tablist" aria-label="地圖模式">
+            <button
+              className={`map-mode-pill-btn ${mode === 'route' ? 'active' : ''}`}
+              style={mode === 'route' ? { background: accent, color: '#fff' } : {}}
+              onClick={() => { setMode('route'); setFilterOpen(false); }}
+              role="tab"
+              aria-selected={mode === 'route'}
+            >
+              <Route size={13} />
+              <span>動線</span>
+            </button>
+            <button
+              className={`map-mode-pill-btn ${mode === 'explore' ? 'active' : ''}`}
+              style={mode === 'explore' ? { background: accent, color: '#fff' } : {}}
+              onClick={() => setMode('explore')}
+              role="tab"
+              aria-selected={mode === 'explore'}
+            >
+              <Compass size={13} />
+              <span>探索</span>
+            </button>
+          </div>
+
+          {mode === 'explore' && (
+            <button
+              className="map-overlay-card map-filter-trigger"
+              onClick={() => setFilterOpen((v) => !v)}
+              aria-expanded={filterOpen}
+            >
+              {activeCfg ? (
+                <>
+                  <span style={{ color: activeCfg.color }}>{activeCfg.emoji}</span>
+                  <span>{activeCfg.label}</span>
+                </>
+              ) : (
+                <>
+                  <Filter size={13} />
+                  <span>全部 {filteredPois.length}</span>
+                </>
+              )}
+              <ChevronDown size={13} className={`filter-chevron ${filterOpen ? 'open' : ''}`} />
+            </button>
+          )}
+        </div>
+
+        {/* Row 2: day chips (only in route mode — explore is day-agnostic) */}
+        {mode === 'route' && itinerary.length > 0 && (
+          <div className="map-overlay-card map-day-rail">
+            <nav className="map-day-rail-inner" ref={dayRailRef} aria-label="切換日期">
+              {itinerary.map((day) => {
+                const isActive = day.dayNum === selectedDayNum;
+                return (
+                  <button
+                    key={day.dayNum}
+                    data-day={day.dayNum}
+                    className={`map-day-chip ${isActive ? 'active' : ''}`}
+                    style={isActive ? { background: day.theme.accent, color: '#fff', borderColor: day.theme.accent } : {}}
+                    onClick={() => onDaySelect?.(day)}
+                  >
+                    D{day.dayNum}
+                    <span className="map-day-chip-date">{day.date.replace(/[()（）]/g, '').slice(0, 4)}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        )}
+
+        {/* Row 3: filter chip strip (only when explore + filter open) */}
+        {mode === 'explore' && filterOpen && (
+          <div className="map-overlay-card map-filter-strip">
+            <div className="map-filter-strip-inner">
+              {ALL_CATS.map((cat) => {
+                const isAll = cat === 'all';
+                const cfg = isAll ? null : CATEGORIES[cat];
+                const isActive = activeCat === cat;
+                const count = isAll ? JEJU_POIS.length : JEJU_POIS.filter((p) => p.cat === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    className={`map-chip ${isActive ? 'map-chip-active' : ''}`}
+                    style={isActive && cfg ? { borderColor: cfg.color, background: cfg.color + '22', color: cfg.color } : {}}
+                    onClick={() => {
+                      setActiveCat(cat);
+                      setFlyTarget(null);
+                      setActivePoi(null);
+                      setFilterOpen(false);
+                    }}
+                  >
+                    {isAll ? '🗺️ 全部' : `${cfg.emoji} ${cfg.label}`}
+                    <span className="map-chip-count">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom sheet: list of stops (route) or POIs (explore) */}

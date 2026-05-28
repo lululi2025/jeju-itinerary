@@ -87,9 +87,10 @@ function App() {
     ? { title: '我的濟州 5 日', range: '7/8 – 7/12', tag: '自駕補考 🌴' }
     : { title: '家人濟州 6 日', range: '7/6 – 7/11', tag: '溫馨家族 👨‍👩‍👧‍👦' };
 
-  // Whether the day rail is relevant in the current view.
-  // 行前 / 攻略 pages are day-agnostic — hide the day rail to give content more room.
-  const showDayRail = mainView === 'itinerary' || mainView === 'map';
+  // Day rail in topbar: only on itinerary view.
+  // Map view shows its own floating day rail on top of the map.
+  // Prep / Guide pages are day-agnostic.
+  const showDayRail = mainView === 'itinerary';
 
   return (
     <div className="app-shell">
@@ -193,7 +194,13 @@ function App() {
           <Timeline dayData={selectedDay} accent={selectedDay.theme.accent} />
         )}
         {mainView === 'map' && (
-          <MapExplorer dayData={selectedDay} accent={selectedDay.theme.accent} />
+          <MapExplorer
+            dayData={selectedDay}
+            accent={selectedDay.theme.accent}
+            itinerary={activeItinerary}
+            selectedDayNum={selectedDayNum}
+            onDaySelect={handleDaySelect}
+          />
         )}
         {mainView === 'prep' && (
           <div className="prep-page">
